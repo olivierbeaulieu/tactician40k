@@ -195,15 +195,22 @@ class Selection extends Component {
       const tables = [];
 
       for (const type in types) {
-        types[type].map(node => {
+        const allProfiles = types[type].reduce((acc, node) => {
           const selectionDetails = arrayToObj(node.elements, 'name');
-
           const profiles = selectionDetails.profiles
+
           if (profiles.elements) {
-            tables.push(buildTableFromProfilesList('foo', profiles.elements));
+            acc.push(...profiles.elements);
           }
-          return 1;
-        });
+          
+          return acc;
+        }, []);
+
+        const allProfilesGrouped = groupElementsByAttr(allProfiles, 'profileTypeName');
+
+        for(const profileType in allProfilesGrouped) {
+          tables.push(buildTableFromProfilesList(profileType, allProfilesGrouped[profileType]));
+        }
       }
       selectionsJSX = tables;
     }
@@ -219,9 +226,9 @@ class Selection extends Component {
         </div>
         <div className="datacard--body">
           {profilesJSX}
-          {keywordsJSX}
-          {rulesJSX}
           {selectionsJSX}
+          {rulesJSX}
+          {keywordsJSX}
         </div>
       </div>
     )
