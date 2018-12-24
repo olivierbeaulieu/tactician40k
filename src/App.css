@@ -1,32 +1,70 @@
-.App {
-  text-align: center;
+* {
+  box-sizing: content-box;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
+body {
+  background-color: #d5dbdd;
+  font-family: 'PT Serif', serif;
+  padding: 18px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+table {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0;
+  margin: 0;
+}
+
+.datacard {
+  margin-bottom: 30px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.datacard--body {
+  border: 2px solid #363e47;
+  border-top: none;
+  background-color: #ebf1f3;
+}
+
+.datacard--header {
+  background-color: #0c1722;
   color: white;
+  text-transform: uppercase;
+  text-align: center;
+  font-weight: bold;
+  font-size: 24px;
+  padding: 12px 0;
 }
 
-.App-link {
-  color: #61dafb;
+.datacard-wrapper {
+  padding: 18px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+thead {
+  background-color: #abb5c0;
+  color: #0a0b0b;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+th {
+  padding: 6px;
+  text-align: left;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #fcffff;
+}
+tbody tr:nth-child(even) {
+  background-color: #dae0e5;
+}
+
+tbody td {
+  padding: 6px;
 }
