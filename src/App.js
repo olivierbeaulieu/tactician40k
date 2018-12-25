@@ -47,7 +47,11 @@ class App extends Component {
 
     return (
       <div className="roster" key={'roster-' + this.state.rosterId}>
-        <Sidebar rosterName={this.state.rosterName} forces={this.state.forces}></Sidebar>
+        <Sidebar
+          powerLevel={this.state.powerLevel}
+          pointsValue={this.state.pointsValue}
+          rosterName={this.state.rosterName}
+          forces={this.state.forces}></Sidebar>
         <div className="roster--body">
           {/*<h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>*/}
           {forces}
@@ -73,6 +77,7 @@ class Sidebar extends Component {
     return (
       <div className="roster--sidebar">
         <div className="sidebar--title">{this.props.rosterName}</div>
+        <div className="sidebar--subtitle">{this.props.pointsValue} points - {this.props.powerLevel} PL</div>
         <ul className="sidebar--menu">{menuItems}</ul>
       </div>
     );
@@ -92,7 +97,10 @@ class Forces extends Component {
     
     return (
       <div>
-        <h2>{force.attributes.name} ({force.attributes.catalogueName} v{force.attributes.catalogueRevision})</h2>
+        <div className="datacard--header">
+          {force.attributes.name} ({force.attributes.catalogueName} v{force.attributes.catalogueRevision})
+        </div>
+            
         {selectionsJSX}
       </div>
     )
@@ -133,7 +141,7 @@ class Selection extends Component {
     if (profiles.elements) {
       // Group profiles by profileTypeName
       const groupedProfiles = groupElementsByAttr(profiles.elements, 'profileTypeName');
-      
+
       // Iterate on profiles
       Object.keys(groupedProfiles).forEach(key => {
         jsxSectionsMap[key] = buildTableFromProfilesList(key, groupedProfiles[key]);
