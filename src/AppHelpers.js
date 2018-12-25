@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function arrayToObj(array, keyName) {
  return array.reduce((obj, value) => { obj[value[keyName.trim()]] = value; return obj }, {});
 }
@@ -35,4 +37,37 @@ export function groupElementsByAttr(elements, attr) {
     }
     return obj;
   }, {});
+}
+
+export function createTableRow(arrayRowValues) {
+  const rows = [];
+
+  for (const i in arrayRowValues) {
+    rows.push(<td>{arrayRowValues[i]}</td>);
+  }
+  return (<tr>
+    {rows}
+  </tr>);
+}
+
+export function createTableHeader(arrayRowValues) {
+  const rows = [];
+
+  for (const i in arrayRowValues) {
+    rows.push(<th>{arrayRowValues[i]}</th>);
+  }
+  return (<tr>
+    {rows}
+  </tr>);
+}
+
+export function createTable(headerJSX, rowsJSX) {
+  return (<table>
+    <thead>
+      {headerJSX}
+    </thead>
+    <tbody>
+      {rowsJSX}
+    </tbody>
+  </table>);
 }

@@ -7,7 +7,10 @@ import {
   getPointsFromElement,
   getSelectionsFromNode,
   getProfilesFromNode,
-  groupElementsByAttr
+  groupElementsByAttr,
+  createTableRow,
+  createTableHeader,
+  createTable
 } from './AppHelpers';
 
 window.data = data;
@@ -30,10 +33,8 @@ class App extends Component {
       powerLevel: costsValues.powerLevel,
       pointsValue: costsValues.points,
       // costLimits,
-      forces: forces,
+      forces,
     };
-
-    // console.log(this.state);
   }
 
   render() {
@@ -43,11 +44,31 @@ class App extends Component {
     const forces = this.state.forces.elements.map(x => <Forces force={x} key={'forces-' + x.attributes.entryId} />);
 
     return (
-      <div key={'roster-' + this.state.rosterId}>
-        <h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>
-        {forces}
+      <div className="roster" key={'roster-' + this.state.rosterId}>
+        <Sidebar forces={this.state.forces}></Sidebar>
+        <div className="roster--body">
+          <h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>
+          {forces}
+        </div>
       </div>
     );
+  }
+}
+
+class Sidebar extends Component {
+  render() {
+    const menuItems = [];
+
+    this.props.forces.elements.forEach(force => {
+      const selections = arrayToObj(force.elements, 'name').selections;
+      selections.elements.forEach(selection => {
+        menuItems.push(<li>
+          <a href={'#datacard-' + selection.attributes.entryId}>{selection.attributes.name}</a>
+        </li>);
+      });
+    });
+    
+    return (<div className="roster--sidebar"><ul className="sidebar--menu">{menuItems}</ul></div>);
   }
 }
 
@@ -56,7 +77,6 @@ class Forces extends Component {
     const { force } = this.props;
     const { selections } = arrayToObj(force.elements, 'name');
 
-    // console.log(selections);
     // const categoriesJSX = categories.elements.map(x => <div>{x.attributes.name}</div>);
     const selectionsJSX = selections.elements.map(x => <Selection selection={x} />)
     return (
@@ -66,39 +86,6 @@ class Forces extends Component {
       </div>
     )
   }
-}
-
-function createTableRow(arrayRowValues) {
-  const rows = [];
-
-  for (const i in arrayRowValues) {
-    rows.push(<td>{arrayRowValues[i]}</td>);
-  }
-  return (<tr>
-    {rows}
-  </tr>);
-}
-
-function createTableHeader(arrayRowValues) {
-  const rows = [];
-
-  for (const i in arrayRowValues) {
-    rows.push(<th>{arrayRowValues[i]}</th>);
-  }
-  return (<tr>
-    {rows}
-  </tr>);
-}
-
-function createTable(headerJSX, rowsJSX) {
-  return (<table>
-    <thead>
-      {headerJSX}
-    </thead>
-    <tbody>
-      {rowsJSX}
-    </tbody>
-  </table>);
 }
 
 function buildTableFromProfilesList(profileName, profilesList) {
@@ -133,14 +120,12 @@ function buildTableFromProfilesList(profileName, profilesList) {
 class Selection extends Component {
   render() {
     const { attributes, elements } = this.props.selection;
-    const { name } = attributes;
+    const { name, entryId } = attributes;
     const { categories, costs, rules, profiles, selections } = arrayToObj(elements, 'name');
     const categoriesListString = categories.elements.map(x => x.attributes.name).join(', ');
     const costsValues = getPointsFromElement(costs);
 
     console.log(`===${name}===`)
-
-    // console.log(this.props.selection);
 
     const jsxSectionsMap = {};
 
@@ -211,11 +196,10 @@ class Selection extends Component {
     const keywordsTitle = 'Keywords';
     jsxSectionsMap[keywordsTitle] = createTable(createTableHeader([keywordsTitle]), createTableRow([categoriesListString]));
 
-    // Order all sections to be rendered in the right order
+    // Order all sections to be rendered in the right order, based on config
     const sectionsJSX = [];
     _.sortBy(Object.keys(jsxSectionsMap), key => {
       const index = tablesOrder.indexOf(key.toLowerCase());
-
       return index >= 0 ? index : 9000;
     })
       .forEach(key => {
@@ -224,7 +208,7 @@ class Selection extends Component {
 
     // Return full datacard JSX
     return (
-      <div className="datacard" key={'selection-' + name}>
+      <div id={'datacard-' + entryId} className="datacard" key={'selection-' + entryId}>
         <div className="datacard--header">
           {name}{/* [{costsValues.points} points / {costsValues.powerLevel}PL]*/}
         </div>
