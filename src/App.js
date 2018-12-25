@@ -10,7 +10,9 @@ import {
   groupElementsByAttr,
   createTableRow,
   createTableHeader,
-  createTable
+  createTable,
+  sortByPrimaryCategory,
+  buildTableFromProfilesList
 } from './AppHelpers';
 
 window.data = data;
@@ -45,9 +47,9 @@ class App extends Component {
 
     return (
       <div className="roster" key={'roster-' + this.state.rosterId}>
-        <Sidebar forces={this.state.forces}></Sidebar>
+        <Sidebar rosterName={this.state.rosterName} forces={this.state.forces}></Sidebar>
         <div className="roster--body">
-          <h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>
+          {/*<h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>*/}
           {forces}
         </div>
       </div>
@@ -61,14 +63,19 @@ class Sidebar extends Component {
 
     this.props.forces.elements.forEach(force => {
       const selections = arrayToObj(force.elements, 'name').selections;
-      selections.elements.forEach(selection => {
+      sortByPrimaryCategory(selections.elements).forEach(selection => {
         menuItems.push(<li>
           <a href={'#datacard-' + selection.attributes.entryId}>{selection.attributes.name}</a>
         </li>);
       });
     });
     
-    return (<div className="roster--sidebar"><ul className="sidebar--menu">{menuItems}</ul></div>);
+    return (
+      <div className="roster--sidebar">
+        <div className="sidebar--title">{this.props.rosterName}</div>
+        <ul className="sidebar--menu">{menuItems}</ul>
+      </div>
+    );
   }
 }
 
@@ -78,7 +85,11 @@ class Forces extends Component {
     const { selections } = arrayToObj(force.elements, 'name');
 
     // const categoriesJSX = categories.elements.map(x => <div>{x.attributes.name}</div>);
-    const selectionsJSX = selections.elements.map(x => <Selection selection={x} />)
+
+    // Order forces by unit type
+    const selectionsJSX = sortByPrimaryCategory(selections.elements)
+      .map(x => <Selection selection={x} />)
+    
     return (
       <div>
         <h2>{force.attributes.name} ({force.attributes.catalogueName} v{force.attributes.catalogueRevision})</h2>
@@ -88,34 +99,7 @@ class Forces extends Component {
   }
 }
 
-function buildTableFromProfilesList(profileName, profilesList) {
-  // Gather the table header values
-  const headers = [profileName]; 
 
-  // Build the rows
-  const rowsJSX = profilesList.reduce((arr, profile, index) => {// Add profile details for this profile
-    const { characteristics } = arrayToObj(profile.elements, 'name');
-
-    if (characteristics) {
-      const characteristicsArr = [profile.attributes.name];
-
-      characteristics.elements.forEach((characteristic) => {
-        if (index === 0) {
-          headers.push(characteristic.attributes.name);
-        }
-        characteristicsArr.push(characteristic.attributes.value);
-      });
-
-      arr.push(createTableRow(characteristicsArr));
-    }
-
-    return arr;
-  }, []);
-
-  const headerJSX = createTableHeader(headers);
-
-  return createTable(headerJSX, rowsJSX);
-}
 
 class Selection extends Component {
   render() {
@@ -126,6 +110,7 @@ class Selection extends Component {
     const costsValues = getPointsFromElement(costs);
 
     console.log(`===${name}===`)
+    console.log(this.props.selection)
 
     const jsxSectionsMap = {};
 
@@ -148,7 +133,7 @@ class Selection extends Component {
     if (profiles.elements) {
       // Group profiles by profileTypeName
       const groupedProfiles = groupElementsByAttr(profiles.elements, 'profileTypeName');
-
+      
       // Iterate on profiles
       Object.keys(groupedProfiles).forEach(key => {
         jsxSectionsMap[key] = buildTableFromProfilesList(key, groupedProfiles[key]);
@@ -198,6 +183,7 @@ class Selection extends Component {
 
     // Order all sections to be rendered in the right order, based on config
     const sectionsJSX = [];
+
     _.sortBy(Object.keys(jsxSectionsMap), key => {
       const index = tablesOrder.indexOf(key.toLowerCase());
       return index >= 0 ? index : 9000;

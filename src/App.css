@@ -81,6 +81,7 @@ tbody td {
 .roster--sidebar {
   background-color: #0c1722;
   color: white;
+  padding: 30px 18px;
 }
 
 .roster--body {
@@ -91,7 +92,6 @@ tbody td {
 .roster--sidebar ul {
   font-weight: bold;
   font-size: 18px;
-  padding: 18px;
 }
 
 .sidebar--menu {
@@ -111,4 +111,9 @@ tbody td {
 
 .sidebar--menu li:last-child {
   border: none;
+}
+
+.sidebar--title {
+  font-size: 24px;
+  font-weight: bold;
 }
