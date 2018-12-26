@@ -14,7 +14,12 @@ import {
   createTable,
   sortByPrimaryCategory,
   buildTableFromProfilesList,
-  ensureArray
+  ensureArray,
+  getRules,
+  getCategories,
+  getSelections,
+  getCosts,
+  getProfiles
 } from './AppHelpers';
 
 window.data = data;
@@ -44,8 +49,6 @@ class App extends Component {
     // Set page title
     document.querySelector('title').innerHTML = this.state.rosterName;
 
-    // const forces = this.state.forces.elements.map(x => <Forces force={x} key={'forces-' + x.attributes.entryId} />);
-
     return (
       <div className="roster" key={'roster-' + this.state.rosterId}>
         <Sidebar
@@ -55,7 +58,7 @@ class App extends Component {
           forces={this.state.forces}></Sidebar>
         <div className="roster--body">
           {/*<h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>*/}
-          {/*{forces}*/}
+          <Forces forces={this.state.forces} />
         </div>
       </div>
     );
@@ -75,12 +78,6 @@ class Sidebar extends Component {
           <a href={'#datacard-' + selection.entryId}>{selection.name}</a>
         </li>);
       });
-      // const selections = arrayToObj(force.elements, 'name').selections;
-      // sortByPrimaryCategory(selections.elements).forEach(selection => {
-      //   menuItems.push(<li>
-      //     <a href={'#datacard-' + selection.attributes.entryId}>{selection.attributes.name}</a>
-      //   </li>);
-      // });
     });
     
     return (
@@ -93,21 +90,28 @@ class Sidebar extends Component {
   }
 }
 
+
 class Forces extends Component {
   render() {
+    const sortedForces = sortByPrimaryCategory(this.props.forces);
+
+    return (
+      sortedForces.map(force => <Force force={force} />)
+    );
+  }
+}
+
+class Force extends Component {
+  render() {
     const { force } = this.props;
-    const { selections } = arrayToObj(force.elements, 'name');
-
-    // const categoriesJSX = categories.elements.map(x => <div>{x.attributes.name}</div>);
-
-    // Order forces by unit type
-    const selectionsJSX = sortByPrimaryCategory(selections.elements)
-      .map(x => <Selection selection={x} />)
+    const selections = ensureArray(force.selections.selection);
+    const sortedSelections = sortByPrimaryCategory(selections);
+    const selectionsJSX = sortedSelections.map(selection => <Selection selection={selection} />);
     
     return (
       <div>
         <div className="datacard--header">
-          {force.attributes.name} ({force.attributes.catalogueName} v{force.attributes.catalogueRevision})
+          {force.name} ({force.catalogueName} v{force.catalogueRevision})
         </div>
             
         {selectionsJSX}
@@ -116,34 +120,32 @@ class Forces extends Component {
   }
 }
 
-// class DatacardTable extends Component {
-//   render() {
-
-//   }
-// }
 
 class Selection extends Component {
   render() {
-    const { attributes, elements } = this.props.selection;
-    const { name, entryId } = attributes;
-    const { categories, costs, rules, profiles, selections } = arrayToObj(elements, 'name');
-    const categoriesListString = categories.elements.map(x => x.attributes.name).join(', ');
-    const costsValues = getPointsFromElement(costs);
+    const selection = this.props.selection;
+    const { name, entryId } = this.props.selection;
+    
+    const selections = getSelections(selection);
+    const categories = getCategories(selection);
+    const rules = getRules(selection);
+    const costs = getCosts(selection);
+    const profiles = getProfiles(selection);
+
+    const categoriesListString = categories.map(category => category.name).join(', ');
+    // const costsValues = getPointsFromElement(costs);
 
     console.log(`===${name}===`)
-    // console.log(this.props.selection)
+    // // console.log(this.props.selection)
 
     const jsxSectionsMap = {};
 
-    // Generate JSX from rules
-    if (rules.elements) {
+    // // Generate JSX from rules
+    if (rules) {
       const rulesTitle = 'Rules';
       const rulesHeader = createTableHeader([rulesTitle, 'Description']);
-      const rulesRows = rules.elements.map(x => {
-        const ruleName = x.attributes.name;
-        const ruleDescription = arrayToObj(x.elements, 'name').description.elements[0].text;
-
-        return createTableRow([ruleName, ruleDescription]);
+      const rulesRows = rules.map(rule => {
+        return createTableRow([rule.name, rule.description]);
       });
 
       // Add the rules JSX 
@@ -151,33 +153,31 @@ class Selection extends Component {
     }
 
     // Generate JSX from profiles
-    if (profiles.elements) {
-      // Group profiles by profileTypeName
-      const groupedProfiles = groupElementsByAttr(profiles.elements, 'profileTypeName');
+    if (profiles) {
+      const groupedProfiles = _.groupBy(profiles, profile => profile.profileTypeName);
 
-      // Iterate on profiles
-      Object.keys(groupedProfiles).forEach(key => {
-        jsxSectionsMap[key] = buildTableFromProfilesList(key, groupedProfiles[key]);
+      _.each(groupedProfiles, (profiles, profileTypeName) => {
+        jsxSectionsMap[profileTypeName] = buildTableFromProfilesList(profileTypeName, profiles);
       });
     }
 
     // Generate JSX from selections
-    if (selections.elements){
+    if (selections){
       // Recursively gather all profiles
       function getAllProfiles(node) {  
         const allProfiles = [];
-        const profilesNode = getProfilesFromNode(node);
-        const selectionsNode = getSelectionsFromNode(node);
+        const profiles = getProfiles(node);
+        const selections = getSelections(node);
 
         // Add all the top-level profiles to the list
-        if (profilesNode.elements) {
-          allProfiles.push(...profilesNode.elements);
+        if (profiles) {
+          allProfiles.push(...profiles);
         }
 
-        if (selectionsNode.elements) {
-          selectionsNode.elements.forEach(node => {
-            // Get all profiles from the node
-            allProfiles.push(...getAllProfiles(node));
+        if (selections) {
+          selections.forEach(selection => {
+            // Get all profiles from the selection
+            allProfiles.push(...getAllProfiles(selection));
           })
         }
 
@@ -186,36 +186,39 @@ class Selection extends Component {
 
       const allProfiles = getAllProfiles(this.props.selection);
 
-      // Build the list of models
-      const modelSelections = getSelectionsFromNode(this.props.selection);
-      if (modelSelections.elements) {
-        modelSelections.elements
-          .filter(x => x.attributes.type === 'model')
-          .forEach(model => {
-            // jsxSectionsMap['Models'] = buildTableFromProfilesList(profileType, uniqueProfiles);
-            // console.log(model.attributes.name, model.attributes.number));
-          });
+       // Build the list of models
+      const modelsList = selections
+        .filter(x => x.type === 'model')
+        .map(model => {
+          const selections = getSelections(model)
+            .map(selection => selection.name)
+            .join(', ')
+
+          return createTableRow([`${model.number}x ${model.name}`, selections]);
+        });
+
+      if (modelsList.length > 0) {
+        jsxSectionsMap['Models'] = createTable(createTableHeader(['Models', 'Selections']), modelsList);
       }
 
-      // Group all profile by their type
-      const profilesGroupedByType = groupElementsByAttr(allProfiles, 'profileTypeName');
+      // Group all profiles by their type
+      const profilesGroupedByType = _.groupBy(allProfiles, 'profileTypeName');
 
       // Iterate on all types
-      for (const profileType in profilesGroupedByType) {
+      _.each(profilesGroupedByType, (profiles, profileType) => {
         // Ensure that the same profile doesn't appear multiple times in the same table
-        const uniqueProfiles = _.uniqBy(profilesGroupedByType[profileType], profiles => profiles.attributes.name);
+        const uniqueProfiles = _.uniqBy(profiles, profile => profile.name);
 
-        
         // Create tables from the list of profiles
         jsxSectionsMap[profileType] = buildTableFromProfilesList(profileType, uniqueProfiles);
-      }
+      });
     }
 
-    // Generate JSX from keywords
+    // // Generate JSX from keywords
     const keywordsTitle = 'Keywords';
     jsxSectionsMap[keywordsTitle] = createTable(createTableHeader([keywordsTitle]), createTableRow([categoriesListString]));
 
-    // Order all sections to be rendered in the right order, based on config
+    // // Order all sections to be rendered in the right order, based on config
     const sectionsJSX = [];
 
     _.sortBy(Object.keys(jsxSectionsMap), key => {

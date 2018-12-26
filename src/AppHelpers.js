@@ -91,36 +91,48 @@ const unitTypeOrder = ['hq', 'troops', 'fast attack', 'flyer', 'dedicated transp
 
 export function sortByPrimaryCategory(elements) {
   return _.sortBy(elements, element => {
-    const primaryCategory = getPrimaryCategory(element) || '';
-    const index = unitTypeOrder.indexOf(primaryCategory.name.toLowerCase());
-    return index === -1 ? 1000 : index;
+    const primaryCategory = getPrimaryCategory(element);
+
+    if (primaryCategory) {
+      const index = unitTypeOrder.indexOf(primaryCategory.name.toLowerCase());
+      return index === -1 ? 1000 : index;
+    } else {
+      return 1000;
+    }
   });
 }
 
 
 // Always returns an array. If the passed argument is an array, that array will be returned.
 // Otherwise, whatever is passed will be wrapped in an array
-export function ensureArray(arrayOrObject) {
-  return arrayOrObject instanceof Array ? arrayOrObject : [arrayOrObject];
+// If a string is passed, return an empty array
+export function ensureArray(value) {
+  if (value instanceof Array) {
+    return value
+  } else if (typeof value === 'string') {
+    return [];
+  } else {
+    return [value];
+  }
 }
 
 
-export function buildTableFromProfilesList(profileName, profilesList) {
+export function buildTableFromProfilesList(profileTypeName, profilesList) {
   // Gather the table header values
-  const headers = [profileName]; 
+  const headers = [profileTypeName]; 
 
   // Build the rows
   const rowsJSX = profilesList.reduce((arr, profile, index) => {// Add profile details for this profile
-    const { characteristics } = arrayToObj(profile.elements, 'name');
+    const characteristics = getCharacteristics(profile);
 
     if (characteristics) {
-      const characteristicsArr = [profile.attributes.name];
+      const characteristicsArr = [profile.name];
 
-      characteristics.elements.forEach((characteristic) => {
+      characteristics.forEach((characteristic) => {
         if (index === 0) {
-          headers.push(characteristic.attributes.name);
+          headers.push(characteristic.name);
         }
-        characteristicsArr.push(characteristic.attributes.value);
+        characteristicsArr.push(characteristic.value);
       });
 
       arr.push(createTableRow(characteristicsArr));
@@ -132,4 +144,41 @@ export function buildTableFromProfilesList(profileName, profilesList) {
   const headerJSX = createTableHeader(headers);
 
   return createTable(headerJSX, rowsJSX);
+}
+
+
+export function getRules(element) {
+  if (element.rules && element.rules.rule) {
+    return ensureArray(element.rules.rule);
+  }
+}
+
+export function getCategories(element) {
+  if (element.categories && element.categories.category) {
+    return ensureArray(element.categories.category);
+  }
+}
+
+export function getSelections(element) {
+  if (element.selections && element.selections.selection) {
+    return ensureArray(element.selections.selection);
+  }
+}
+
+export function getCosts(element) {
+  if (element.costs && element.costs.cost) {
+    return ensureArray(element.costs.cost);
+  }
+}
+
+export function getProfiles(element) {
+  if (element.profiles && element.profiles.profile) {
+    return ensureArray(element.profiles.profile);
+  }
+}
+
+export function getCharacteristics(element) {
+  if (element.characteristics && element.characteristics.characteristic) {
+    return ensureArray(element.characteristics.characteristic);
+  }
 }
