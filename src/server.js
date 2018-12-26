@@ -1,6 +1,7 @@
 const parser = require('fast-xml-parser');
 const fs = require('fs');
-const xmlData = fs.readFileSync('./XmlDataDarkAngels.xml', 'utf-8');
+// const xmlData = fs.readFileSync('./XmlDataDarkAngels.xml', 'utf-8');
+const xmlData = fs.readFileSync('./XmlDataSpaceWolves.xml', 'utf-8');
 const he = require('he');
 
 console.log(parser.parse(xmlData, {
@@ -16,6 +17,7 @@ console.log(parser.parse(xmlData, {
     // cdataTagName: "__cdata", //default is 'false'
     // cdataPositionChar: "\\c",
     // localeRange: "", //To support non english character in tag/attribute values.
+    arrayMode: true,
     parseTrueNumberOnly: true,
     attrValueProcessor: a => he.decode(a, {isAttributeValue: true}),//default is a=>a
     tagValueProcessor : a => he.decode(a) //default is a=>a

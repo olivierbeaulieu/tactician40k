@@ -81,22 +81,9 @@ export function createTable(headerJSX, rowsJSX) {
 }
 
 
-export function getPrimaryCategory(node) {
-  const { categories } = arrayToObj(node.elements, 'name');
-  let primaryCategory;
-
-  if (categories.elements) {
-    primaryCategory = categories.elements.find(category => {
-      // Yep, the xml has a 'true' string
-      return category.attributes.primary === 'true'
-    });
-  }
-
-  if (primaryCategory) {
-    return primaryCategory.attributes.name;
-  }
-  
-  return null;
+export function getPrimaryCategory(element) {
+  const categories = ensureArray(element.categories.category);
+  return categories.find(category => category.primary === true);
 }
 
 
@@ -105,9 +92,16 @@ const unitTypeOrder = ['hq', 'troops', 'fast attack', 'flyer', 'dedicated transp
 export function sortByPrimaryCategory(elements) {
   return _.sortBy(elements, element => {
     const primaryCategory = getPrimaryCategory(element) || '';
-    const index = unitTypeOrder.indexOf(primaryCategory.toLowerCase());
+    const index = unitTypeOrder.indexOf(primaryCategory.name.toLowerCase());
     return index === -1 ? 1000 : index;
   });
+}
+
+
+// Always returns an array. If the passed argument is an array, that array will be returned.
+// Otherwise, whatever is passed will be wrapped in an array
+export function ensureArray(arrayOrObject) {
+  return arrayOrObject instanceof Array ? arrayOrObject : [arrayOrObject];
 }
 
 

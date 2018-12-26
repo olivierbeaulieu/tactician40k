@@ -13,7 +13,8 @@ import {
   createTableHeader,
   createTable,
   sortByPrimaryCategory,
-  buildTableFromProfilesList
+  buildTableFromProfilesList,
+  ensureArray
 } from './AppHelpers';
 
 window.data = data;
@@ -24,19 +25,18 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    const root = data.elements[0];
+    const { roster } = data;
 
     // Convert array to object for easier manipulation
-    let { costLimits, costs, forces } = arrayToObj(root.elements, 'name');
-    const costsValues = getPointsFromElement(costs);
+    const costs = arrayToObj(roster.costs.cost, 'name');
 
     this.state = {
-      rosterId: root.attributes.id,
-      rosterName: root.attributes.name,
-      powerLevel: costsValues.powerLevel,
-      pointsValue: costsValues.points,
+      rosterId: roster.id,
+      rosterName: roster.name,
+      powerLevel: costs.PL.value,
+      pointsValue: costs.pts.value,
       // costLimits,
-      forces,
+      forces: ensureArray(roster.forces.force),
     };
   }
 
@@ -44,7 +44,7 @@ class App extends Component {
     // Set page title
     document.querySelector('title').innerHTML = this.state.rosterName;
 
-    const forces = this.state.forces.elements.map(x => <Forces force={x} key={'forces-' + x.attributes.entryId} />);
+    // const forces = this.state.forces.elements.map(x => <Forces force={x} key={'forces-' + x.attributes.entryId} />);
 
     return (
       <div className="roster" key={'roster-' + this.state.rosterId}>
@@ -55,7 +55,7 @@ class App extends Component {
           forces={this.state.forces}></Sidebar>
         <div className="roster--body">
           {/*<h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>*/}
-          {forces}
+          {/*{forces}*/}
         </div>
       </div>
     );
@@ -66,13 +66,21 @@ class Sidebar extends Component {
   render() {
     const menuItems = [];
 
-    this.props.forces.elements.forEach(force => {
-      const selections = arrayToObj(force.elements, 'name').selections;
-      sortByPrimaryCategory(selections.elements).forEach(selection => {
+    this.props.forces.forEach(force => {
+      const selections = ensureArray(force.selections.selection);
+      const sortedSelections = sortByPrimaryCategory(selections);
+
+      sortedSelections.forEach(selection => {
         menuItems.push(<li>
-          <a href={'#datacard-' + selection.attributes.entryId}>{selection.attributes.name}</a>
+          <a href={'#datacard-' + selection.entryId}>{selection.name}</a>
         </li>);
       });
+      // const selections = arrayToObj(force.elements, 'name').selections;
+      // sortByPrimaryCategory(selections.elements).forEach(selection => {
+      //   menuItems.push(<li>
+      //     <a href={'#datacard-' + selection.attributes.entryId}>{selection.attributes.name}</a>
+      //   </li>);
+      // });
     });
     
     return (
