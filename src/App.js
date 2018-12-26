@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import _ from 'lodash';
 import data from './XmlData';
+
 import {
   arrayToObj,
   getPointsFromElement,
@@ -107,7 +108,11 @@ class Forces extends Component {
   }
 }
 
+// class DatacardTable extends Component {
+//   render() {
 
+//   }
+// }
 
 class Selection extends Component {
   render() {
@@ -118,7 +123,7 @@ class Selection extends Component {
     const costsValues = getPointsFromElement(costs);
 
     console.log(`===${name}===`)
-    console.log(this.props.selection)
+    // console.log(this.props.selection)
 
     const jsxSectionsMap = {};
 
@@ -156,12 +161,14 @@ class Selection extends Component {
         const profilesNode = getProfilesFromNode(node);
         const selectionsNode = getSelectionsFromNode(node);
 
+        // Add all the top-level profiles to the list
         if (profilesNode.elements) {
           allProfiles.push(...profilesNode.elements);
         }
 
         if (selectionsNode.elements) {
           selectionsNode.elements.forEach(node => {
+            // Get all profiles from the node
             allProfiles.push(...getAllProfiles(node));
           })
         }
@@ -170,6 +177,17 @@ class Selection extends Component {
       }
 
       const allProfiles = getAllProfiles(this.props.selection);
+
+      // Build the list of models
+      const modelSelections = getSelectionsFromNode(this.props.selection);
+      if (modelSelections.elements) {
+        modelSelections.elements
+          .filter(x => x.attributes.type === 'model')
+          .forEach(model => {
+            // jsxSectionsMap['Models'] = buildTableFromProfilesList(profileType, uniqueProfiles);
+            // console.log(model.attributes.name, model.attributes.number));
+          });
+      }
 
       // Group all profile by their type
       const profilesGroupedByType = groupElementsByAttr(allProfiles, 'profileTypeName');
