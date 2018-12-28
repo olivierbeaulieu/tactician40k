@@ -1,127 +1,18 @@
 import React, { Component } from 'react';
-import './App.css';
 import _ from 'lodash';
-import data from './XmlData';
-
+import { TABLES_ORDER } from '../config';
 import {
-  arrayToObj,
-  getPointsFromElement,
-  getSelectionsFromNode,
-  getProfilesFromNode,
-  groupElementsByAttr,
-  createTableRow,
-  createTableHeader,
-  createTable,
-  sortByPrimaryCategory,
-  buildTableFromProfilesList,
-  ensureArray,
-  getRules,
-  getCategories,
   getSelections,
-  getCosts,
-  getProfiles
-} from './AppHelpers';
+  getCategories,
+  getRules,
+  buildTableFromProfilesList,
+  getProfiles,
+  createTableHeader,
+  createTableRow,
+  createTable
+} from '../AppHelpers';
 
-window.data = data;
-
-const tablesOrder = ['unit', 'weapon', 'abilities', 'psyker', 'psychic power', 'rules'];
-
-class App extends Component {
-  constructor(props) {
-    super(props);
-
-    const { roster } = data;
-
-    // Convert array to object for easier manipulation
-    const costs = arrayToObj(roster.costs.cost, 'name');
-
-    this.state = {
-      rosterId: roster.id,
-      rosterName: roster.name,
-      powerLevel: costs.PL.value,
-      pointsValue: costs.pts.value,
-      // costLimits,
-      forces: ensureArray(roster.forces.force),
-    };
-  }
-
-  render() {
-    // Set page title
-    document.querySelector('title').innerHTML = this.state.rosterName;
-
-    return (
-      <div className="roster" key={'roster-' + this.state.rosterId}>
-        <Sidebar
-          powerLevel={this.state.powerLevel}
-          pointsValue={this.state.pointsValue}
-          rosterName={this.state.rosterName}
-          forces={this.state.forces}></Sidebar>
-        <div className="roster--body">
-          {/*<h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>*/}
-          <Forces forces={this.state.forces} />
-        </div>
-      </div>
-    );
-  }
-}
-
-class Sidebar extends Component {
-  render() {
-    const menuItems = [];
-
-    this.props.forces.forEach(force => {
-      const selections = ensureArray(force.selections.selection);
-      const sortedSelections = sortByPrimaryCategory(selections);
-
-      sortedSelections.forEach(selection => {
-        menuItems.push(<li>
-          <a href={'#datacard-' + selection.entryId}>{selection.name}</a>
-        </li>);
-      });
-    });
-    
-    return (
-      <div className="roster--sidebar">
-        <div className="sidebar--title">{this.props.rosterName}</div>
-        <div className="sidebar--subtitle">{this.props.pointsValue} points - {this.props.powerLevel} PL</div>
-        <ul className="sidebar--menu">{menuItems}</ul>
-      </div>
-    );
-  }
-}
-
-
-class Forces extends Component {
-  render() {
-    const sortedForces = sortByPrimaryCategory(this.props.forces);
-
-    return (
-      sortedForces.map(force => <Force force={force} />)
-    );
-  }
-}
-
-class Force extends Component {
-  render() {
-    const { force } = this.props;
-    const selections = ensureArray(force.selections.selection);
-    const sortedSelections = sortByPrimaryCategory(selections);
-    const selectionsJSX = sortedSelections.map(selection => <Selection selection={selection} />);
-    
-    return (
-      <div>
-        <div className="datacard--header">
-          {force.name} ({force.catalogueName} v{force.catalogueRevision})
-        </div>
-            
-        {selectionsJSX}
-      </div>
-    )
-  }
-}
-
-
-class Selection extends Component {
+class SelectionsView extends Component {
   render() {
     const selection = this.props.selection;
     const { name, entryId } = this.props.selection;
@@ -129,18 +20,18 @@ class Selection extends Component {
     const selections = getSelections(selection);
     const categories = getCategories(selection);
     const rules = getRules(selection);
-    const costs = getCosts(selection);
+    // const costs = getCosts(selection);
     const profiles = getProfiles(selection);
 
     const categoriesListString = categories.map(category => category.name).join(', ');
     // const costsValues = getPointsFromElement(costs);
 
-    console.log(`===${name}===`)
-    // // console.log(this.props.selection)
+    console.log(`===${name}===`);
+    // console.log(this.props.selection);
 
     const jsxSectionsMap = {};
 
-    // // Generate JSX from rules
+    // Generate JSX from rules
     if (rules) {
       const rulesTitle = 'Rules';
       const rulesHeader = createTableHeader([rulesTitle, 'Description']);
@@ -222,7 +113,7 @@ class Selection extends Component {
     const sectionsJSX = [];
 
     _.sortBy(Object.keys(jsxSectionsMap), key => {
-      const index = tablesOrder.indexOf(key.toLowerCase());
+      const index = TABLES_ORDER.indexOf(key.toLowerCase());
       return index >= 0 ? index : 9000;
     })
       .forEach(key => {
@@ -243,4 +134,4 @@ class Selection extends Component {
   }
 }
 
-export default App;
+export default SelectionsView;
