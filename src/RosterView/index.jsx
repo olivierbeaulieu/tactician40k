@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { arrayToObj, ensureArray } from '../AppHelpers';
+import { parseXmlToJson, arrayToObj, ensureArray } from '../AppHelpers';
 import SidebarView from './SidebarView';
 import ForcesView from './ForcesView';
 
@@ -7,7 +7,16 @@ class RosterView extends Component {
   constructor(props) {
     super(props);
 
-    const { roster } = this.props.data;
+    // Attempt to read the roster data. If not possible, send the user back to the upload page
+    const storageData = localStorage.getItem('roster-data');
+
+    if (!storageData) {
+      console.log('No storage data found, navigating to upload page')
+      window.location.href = '/';
+      return;
+    }
+
+    const { roster } = parseXmlToJson(storageData);
 
     // Convert array to object for easier manipulation
     const costs = arrayToObj(roster.costs.cost, 'name');

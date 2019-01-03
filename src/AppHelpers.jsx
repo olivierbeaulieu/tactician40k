@@ -1,5 +1,28 @@
 import React from 'react';
 import _ from 'lodash';
+import parser from 'fast-xml-parser';
+import he from 'he';
+
+export function parseXmlToJson(xmlData) {
+    return parser.parse(xmlData, {
+        attributeNamePrefix : "",
+        // attrNodeName: "attributes", //default is 'false'
+        // textNodeName : "#text",
+        ignoreAttributes : false,
+        ignoreNameSpace : true,
+        allowBooleanAttributes : true,
+        parseNodeValue : true,
+        parseAttributeValue : true,
+        trimValues: true,
+        // cdataTagName: "__cdata", //default is 'false'
+        // cdataPositionChar: "\\c",
+        // localeRange: "", //To support non english character in tag/attribute values.
+        arrayMode: true,
+        parseTrueNumberOnly: true,
+        attrValueProcessor: a => he.decode(a, {isAttributeValue: true}),//default is a=>a
+        tagValueProcessor : a => he.decode(a) //default is a=>a
+    });
+}
 
 export function arrayToObj(array, keyName) {
  return array.reduce((obj, value) => { obj[value[keyName.trim()]] = value; return obj }, {});
@@ -141,3 +164,4 @@ export function getCharacteristics(element) {
     return ensureArray(element.characteristics.characteristic);
   }
 }
+

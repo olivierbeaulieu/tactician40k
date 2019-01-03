@@ -15,7 +15,7 @@ import {
 class SelectionsView extends Component {
   render() {
     const selection = this.props.selection;
-    const { name, entryId } = this.props.selection;
+    const { name, id } = this.props.selection;
     
     const selections = getSelections(selection);
     const categories = getCategories(selection);
@@ -122,7 +122,7 @@ class SelectionsView extends Component {
 
     // Return full datacard JSX
     return (
-      <div id={'datacard-' + entryId} className="datacard" key={'selection-' + entryId}>
+      <div id={'datacard-' + id} className="datacard" key={'selection-' + id}>
         <div className="datacard--header">
           {name}{/* [{costsValues.points} points / {costsValues.powerLevel}PL]*/}
         </div>

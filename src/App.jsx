@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import './App.css';
-
-// import data from './RosterData';
-import data from './RosterDataDarkAngels';
 import RosterView from './RosterView';
-
-import {
-  arrayToObj,
-  ensureArray,
-} from './AppHelpers';
+import RosterUploadView from './RosterUploadView';
 
 // fetch('/wat').then(blob => blob.json()).then(x=>console.log(x));
 
-class App extends Component {
+class AppRouter extends Component {
   render() {
-    return <RosterView data={data} />
+    return (<Router>
+      <div>
+        <Route exact path="/" component={RosterUploadView} />
+        <Route path="/roster" component={RosterView} />
+      </div>
+    </Router>);
   }
 }
 
-export default App;
+export default AppRouter;

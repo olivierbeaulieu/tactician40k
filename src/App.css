@@ -82,6 +82,8 @@ tbody td {
   background-color: #0c1722;
   color: white;
   padding: 30px 18px;
+  overflow: auto;
+  flex: 0 0 auto;
 }
 
 .roster--body {
@@ -123,4 +125,26 @@ tbody td {
 .sidebar--subtitle {
   font-size: 14px;
   color: #a6adb5;
+}
+
+.roster-upload {
+  color: white;
+  min-height: 100vh;
+  background-color: #0c1722;
+  padding: 50px;
+  text-align: center;
+}
+
+.roster-upload h2 {
+  margin-bottom: 60px;
+}
+
+.roster-upload--dropzone > div{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 5px #3f4b58 dashed;
+  padding: 30px;
+  height: 350px;
+  font-weight: bold;
 }

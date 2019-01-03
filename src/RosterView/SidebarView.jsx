@@ -10,8 +10,8 @@ class SidebarView extends Component {
       const sortedSelections = sortByPrimaryCategory(selections);
 
       sortedSelections.forEach(selection => {
-        menuItems.push(<li>
-          <a href={'#datacard-' + selection.entryId}>{selection.name}</a>
+        menuItems.push(<li key={selection.id}>
+          <a href={'#datacard-' + selection.id}>{selection.name}</a>
         </li>);
       });
     });
