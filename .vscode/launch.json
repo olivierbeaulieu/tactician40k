@@ -12,7 +12,9 @@
             "runtimeArgs": [
                 "run-script",
                 "frontend-debug"
-            ]
+            ],
+            "console": "integratedTerminal",
+            "port": 9229
         },
         {
             "type": "node",

@@ -13,13 +13,13 @@
     "react-dom": "^16.7.0",
     "react-dropzone": "^8.0.3",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "^2.1.2",
+    "react-scripts": "^2.1.3",
     "yauzl": "^2.10.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest --coverage",
     "eject": "react-scripts eject",
     "server": "node --experimental-modules server/index.mjs",
     "server-watch": "nodemon --experimental-modules server/index.mjs",
@@ -36,6 +36,9 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
     "jest": "^23.6.0"
   }
 }

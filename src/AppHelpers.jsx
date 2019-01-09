@@ -25,7 +25,11 @@ export function parseXmlToJson(xmlData) {
 }
 
 export function arrayToObj(array, keyName) {
- return array.reduce((obj, value) => { obj[value[keyName.trim()]] = value; return obj }, {});
+  if (typeof keyName !== 'string' || keyName.length === 0) {
+    throw new Error('Argument keyName must be a non-empty string')
+  }
+
+  return array.reduce((obj, value) => { obj[value[keyName.trim()]] = value; return obj }, {});
 }
 
 export function createTableRow(arrayRowValues) {
@@ -85,9 +89,14 @@ export function sortByPrimaryCategory(elements) {
 }
 
 
-// Always returns an array. If the passed argument is an array, that array will be returned.
-// Otherwise, whatever is passed will be wrapped in an array
-// If a string is passed, return an empty array
+/**
+ * Always returns an array. If the passed argument is an array, that array will be returned.
+ * Otherwise, whatever is passed will be wrapped in an array
+ * If a string is passed, return an empty array
+ * 
+ * todo The last else statement should be only for objects
+ * @param {Any} value 
+ */
 export function ensureArray(value) {
   if (value instanceof Array) {
     return value
