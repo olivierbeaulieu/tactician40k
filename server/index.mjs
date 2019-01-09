@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
+import bodyParser from 'body-parser';
+import multer from 'multer';
+import yauzl from 'yauzl';
+
 const app = express();
 const port = 3001;
-const bodyParser = require('body-parser')
-const multer = require('multer');
 const multerUpload = multer();
-const yauzl = require('yauzl')
 
 app.use(bodyParser.json());
 

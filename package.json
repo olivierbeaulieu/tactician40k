@@ -21,7 +21,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "nodemon server/index.js"
+    "server": "node --experimental-modules server/index.mjs",
+    "server-watch": "nodemon --experimental-modules server/index.mjs",
+    "frontend-debug": "react-scripts start"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
@@ -32,5 +34,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "jest": "^23.6.0"
+  }
 }

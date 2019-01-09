@@ -4,8 +4,6 @@ import './App.css';
 import RosterView from './RosterView';
 import RosterUploadView from './RosterUploadView';
 
-// fetch('/wat').then(blob => blob.json()).then(x=>console.log(x));
-
 class AppRouter extends Component {
   render() {
     return (<Router>
