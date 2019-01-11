@@ -4,7 +4,7 @@ import _ from 'lodash';
 import parser from 'fast-xml-parser';
 import he from 'he';
 import type { Element } from 'react';
-import type { RosterfileJson, Roster, Category, Profile, Selection } from './Types';
+import type { RosterfileJson, Roster, Category, Profile, Selection, Characteristic, Rule } from './Types';
 
 /**
  * Parses a stringified xml file into a JS object.
@@ -15,21 +15,21 @@ import type { RosterfileJson, Roster, Category, Profile, Selection } from './Typ
 export function parseXmlToJson(xmlData: string): Object {
   return parser.parse(xmlData, {
     attributeNamePrefix: '',
-    // attrNodeName: "attributes", //default is 'false'
-    // textNodeName : "#text",
     ignoreAttributes: false,
     ignoreNameSpace: true,
     allowBooleanAttributes: true,
     parseNodeValue: true,
     parseAttributeValue: true,
     trimValues: true,
-    // cdataTagName: "__cdata", //default is 'false'
-    // cdataPositionChar: "\\c",
-    // localeRange: "", //To support non english character in tag/attribute values.
     arrayMode: true,
     parseTrueNumberOnly: true,
     attrValueProcessor: a => he.decode(a, { isAttributeValue: true }),//default is a=>a
     tagValueProcessor: a => he.decode(a) //default is a=>a
+    // attrNodeName: "attributes", //default is 'false'
+    // textNodeName : "#text",
+    // cdataTagName: "__cdata", //default is 'false'
+    // cdataPositionChar: "\\c",
+    // localeRange: "", //To support non english character in tag/attribute values.
   });
 }
 
@@ -39,132 +39,14 @@ export function jsonToFormattedRoster(json: RosterfileJson): Roster {
   // Convert array to object for easier manipulation
   const costs = arrayToObj(jsonRosterData.costs.cost, 'name');
 
-  // todo refactor this mess
   const forces = ensureArray(jsonRosterData.forces.force).map(force => {
     return {
       id: force.id,
       name: force.name,
       catalogueName: force.catalogueName,
       catalogueRevision: force.catalogueRevision,
-
-      categories: ensureArray(force.categories.category).map(category => {
-        return {
-          primary: category.primary,
-          name: category.name
-        }
-      }),
-
-      selections: sortByPrimaryCategory(ensureArray(force.selections.selection).map(selection => {
-        const costs = arrayToObj(selection.costs.cost, 'name');
-
-        return {
-          number: selection.number,
-          type: selection.type,
-          entryId: selection.entryId,
-          id: selection.id,
-          name: selection.name,
-          costs: {
-            powerLevel: costs.PL.value,
-            points: costs.pts.value
-          },
-          categories: ensureArray(selection.categories.category).map(category => {
-            return {
-              primary: category.primary,
-              name: category.name
-            }
-          }),
-          profiles: ensureArray(selection.profiles.profile).map(profile => {
-            return {
-              type: profile.profileTypeName,
-              name: profile.name,
-              id: profile.id,
-              characteristics: ensureArray(profile.characteristics.characteristic).map(characteristic => {
-                return {
-                  name: characteristic.name,
-                  value: characteristic.value
-                };
-              })
-            };
-          }),
-          selections: ensureArray(selection.selections.selection).map(selection => {
-            const costs = arrayToObj(selection.costs.cost, 'name');
-
-            return {
-              number: selection.number,
-              type: selection.type,
-              entryId: selection.entryId,
-              id: selection.id,
-              name: selection.name,
-              costs: {
-                powerLevel: costs.PL.value,
-                points: costs.pts.value
-              },
-              categories: ensureArray(selection.categories.category).map(category => {
-                return {
-                  primary: category.primary,
-                  name: category.name
-                }
-              }),
-              profiles: ensureArray(selection.profiles.profile).map(profile => {
-                return {
-                  type: profile.profileTypeName,
-                  name: profile.name,
-                  id: profile.id,
-                  characteristics: ensureArray(profile.characteristics.characteristic).map(characteristic => {
-                    return {
-                      name: characteristic.name,
-                      value: characteristic.value
-                    };
-                  })
-                };
-              }),
-              rules: ensureArray(selection.rules.rule).map(rule => {
-                return {
-                  name: rule.name,
-                  description: rule.description
-                };
-              }),
-              selections: ensureArray(selection.selections.selection).map(selection => {
-                const costs = arrayToObj(selection.costs.cost, 'name');
-
-                return {
-                  number: selection.number,
-                  type: selection.type,
-                  entryId: selection.entryId,
-                  id: selection.id,
-                  name: selection.name,
-                  costs: {
-                    powerLevel: costs.PL.value,
-                    points: costs.pts.value
-                  },
-                  selections: [],
-                  categories: [],
-                  rules: [],
-                  profiles: ensureArray(selection.profiles.profile).map(profile => {
-                    return {
-                      type: profile.profileTypeName,
-                      name: profile.name,
-                      id: profile.id,
-                      characteristics: ensureArray(profile.characteristics.characteristic).map(characteristic => {
-                        return {
-                          name: characteristic.name,
-                          value: characteristic.value
-                        };
-                      })
-                    };
-                  })
-                }
-              })
-            }
-          }),
-          rules: ensureArray(selection.rules.rule).map(rule => {
-            return {
-              name: rule.name,
-              description: rule.description
-            };
-          })
-        }
-      }))
+      categories: getCategories(force),
+      selections: getSelections(force)
     };
   });
 
@@ -269,13 +151,13 @@ export function ensureArray(value: any): Array<any> {
   }
 }
 
-
 export function buildTableFromProfilesList(profileTypeName: string, profilesList: Profile[]): Element<'table'> {
   // Gather the table header values
   const headers = [profileTypeName];
 
   // Build the rows
-  const rowsJSX = profilesList.reduce((arr, profile, index) => {// Add profile details for this profile
+  const rowsJSX = profilesList.reduce((arr, profile, index) => {
+    // Add profile details for this profile
     const { characteristics } = profile;
 
     if (characteristics) {
@@ -297,4 +179,139 @@ export function buildTableFromProfilesList(profileTypeName: string, profilesList
   const headerJSX = createTableHeader(headers);
 
   return createTable(headerJSX, rowsJSX);
+}
+
+
+/**
+ * Types and utility methods used that match and extract parts of the converted json source data structure
+ */
+type Categorized = {
+  categories: {
+    category: Array<{
+      primary: boolean,
+      name: string
+    }>
+  }
+};
+
+type Characterized = {
+  characteristics: {
+    characteristic: Array<{
+      name: string,
+      description: string
+    }>
+  }
+};
+
+type Profiled = {
+  profiles: {
+    profile: Array<Characterized & {
+      id: string,
+      name: string,
+      characteristics: Array<{}>
+    }>
+  }
+};
+
+type Ruled = {
+  rules: {
+    rule: Array<{
+      name: string,
+      description: string
+    }>
+  }
+};
+
+type Selectioned = Profiled & {
+  number: number,
+  type: string,
+  entryId: string,
+  id: string,
+  name: string,
+  costs: {
+    cost: Array<{ PL?: { value: number }, pts?: { value: number } }>
+  },
+  selections: {
+    selection: []
+  }
+}
+
+/**
+ * Extracts and formats category data from raw JSON source
+ * @param {Categorized} element An element coming from the XML to JSON converter
+ */
+function getCategories(element: Categorized): Category[] {
+  return ensureArray(element.categories.category).map(category => {
+    return {
+      primary: category.primary,
+      name: category.name
+    }
+  });
+}
+
+/**
+ * Extracts and formats the characteristics from the source json data
+ * @param {Characterized} element A characteristics-ish object, coming from the xml source converted to JSON
+ */
+function getCharacteristics(element: Characterized): Characteristic[] {
+  return ensureArray(element.characteristics.characteristic).map(characteristic => {
+    return {
+      name: characteristic.name,
+      value: characteristic.value
+    };
+  })
+}
+
+/**
+ * Extracts and formats the profiles from the source json data
+ * @param {Profiled} element A profile-ish object, coming from the xml source converted to JSON
+ */
+function getProfiles(element: Profiled): Profile[] {
+ return  ensureArray(element.profiles.profile).map(profile => {
+    return {
+      type: profile.profileTypeName,
+      name: profile.name,
+      id: profile.id,
+      characteristics: getCharacteristics(profile)
+    };
+  })
+}
+
+/**
+ * Extracts and formats the rules from the source json data
+ * @param {Ruled} element A rule-ish object, coming from the xml source converted to JSON
+ */
+function getRules(element: Ruled): Rule[] {
+  return ensureArray(element.rules.rule).map(rule => {
+    return {
+      name: rule.name,
+      description: rule.description
+    };
+  })
+}
+
+/**
+ * Extracts and formats the selections from the source json data
+ * @param {Selectioned} element A selection-ish object, coming from xml source converted to JSON 
+ */
+function getSelections(element: Selectioned): Selection[] {
+  return sortByPrimaryCategory(ensureArray(element.selections.selection).map(selection => {
+    const costs = arrayToObj(selection.costs.cost, 'name');
+
+    return {
+      number: selection.number,
+      type: selection.type,
+      entryId: selection.entryId,
+      id: selection.id,
+      name: selection.name,
+      costs: {
+        powerLevel: costs.PL.value,
+        points: costs.pts.value
+      },
+      categories: getCategories(selection),
+      profiles: getProfiles(selection),
+      selections: getSelections(selection),
+      rules: getRules(selection)
+    }
+  }));
 }

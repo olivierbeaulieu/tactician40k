@@ -28,14 +28,16 @@ export type Category = {
   name: string,
 };
 
+export type Characteristic = {
+  name: string,
+  value: string | number
+};
+
 export type Profile = {
   type: string,
   name: string,
   id: string,
-  characteristics: Array<{
-    name: string,
-    value: string | number
-  }>
+  characteristics: Characteristic[]
 };
 
 export type Selection = {
