@@ -1,4 +1,5 @@
-import { ensureArray, arrayToObj } from './AppHelpers';
+import { ensureArray, arrayToObj, createTableRow } from './AppHelpers';
+import { mount } from 'enzyme';
 
 describe('#ensureArray', () => {
   test('if an array is passed, it should return that same array', () => {
@@ -22,6 +23,13 @@ describe('#ensureArray', () => {
     expect(result).toHaveLength(1);
     expect(result[0]).toStrictEqual(obj);
   });
+
+  test('if undefined is passed, it should return an empty array', () => {
+    const result = ensureArray(undefined);
+
+    expect(result).toBeInstanceOf(Array);
+    expect(result).toHaveLength(0);
+  })
 });
 
 describe('#arrayToObj', () => {
@@ -59,9 +67,16 @@ describe('#arrayToObj', () => {
     expect(arrayToObj(input, 'name')).toEqual(expectedOutput);
   });
 
-  test('it should throw an error when invoked with invalid arguments', () => {
+  test('it should throw an error when invoked with an invalid keyName argument', () => {
     expect(() => {
       arrayToObj(input, undefined);
     }).toThrowError();
+  });
+});
+
+describe('#createTableRow', () => {
+  test('it should return a table row element with the provided values as columns', () => {
+    const result = mount(createTableRow(['Hello', 'world', '!']));
+    expect(result.html()).toEqual('<tr><td>Hello</td><td>world</td><td>!</td></tr>');
   });
 });

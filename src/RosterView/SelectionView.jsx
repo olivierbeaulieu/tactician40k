@@ -1,33 +1,31 @@
+// @flow
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { TABLES_ORDER } from '../config';
 import {
-  getSelections,
-  getCategories,
-  getRules,
   buildTableFromProfilesList,
-  getProfiles,
   createTableHeader,
   createTableRow,
   createTable
 } from '../AppHelpers';
+import type { Selection, Profile } from '../Types';
 
-class SelectionsView extends Component {
+type Props = {
+  selection: Selection
+};
+
+class SelectionView extends Component<Props> {
   render() {
     const selection = this.props.selection;
-    const { name, id } = this.props.selection;
+    const id = selection.id;
+    const name = selection.name;
     
-    const selections = getSelections(selection);
-    const categories = getCategories(selection);
-    const rules = getRules(selection);
-    // const costs = getCosts(selection);
-    const profiles = getProfiles(selection);
+    const subselections = selection.selections;
+    const { categories, rules, profiles } = selection;
 
     const categoriesListString = categories.map(category => category.name).join(', ');
-    // const costsValues = getPointsFromElement(costs);
 
-    console.log(`===${name}===`);
-    // console.log(this.props.selection);
+    // console.log('Selection:', name, this.props.selection);
 
     const jsxSectionsMap = {};
 
@@ -35,30 +33,25 @@ class SelectionsView extends Component {
     if (rules) {
       const rulesTitle = 'Rules';
       const rulesHeader = createTableHeader([rulesTitle, 'Description']);
-      const rulesRows = rules.map(rule => {
-        return createTableRow([rule.name, rule.description]);
-      });
+      const rulesRows = rules.map(rule => createTableRow([rule.name, rule.description]));
 
       // Add the rules JSX 
       jsxSectionsMap[rulesTitle] = createTable(rulesHeader, rulesRows);
     }
 
     // Generate JSX from profiles
-    if (profiles) {
-      const groupedProfiles = _.groupBy(profiles, profile => profile.profileTypeName);
+    const groupedProfiles = _.groupBy(profiles, (profile: Profile) => profile.type);
 
-      _.each(groupedProfiles, (profiles, profileTypeName) => {
-        jsxSectionsMap[profileTypeName] = buildTableFromProfilesList(profileTypeName, profiles);
-      });
-    }
+    _.each(groupedProfiles, (profiles, profileTypeName) => {
+      jsxSectionsMap[profileTypeName] = buildTableFromProfilesList(profileTypeName, profiles);
+    });
 
-    // Generate JSX from selections
-    if (selections){
+    // Generate JSX from subselections
+    if (subselections){
       // Recursively gather all profiles
       function getAllProfiles(node) {  
         const allProfiles = [];
-        const profiles = getProfiles(node);
-        const selections = getSelections(node);
+        const { profiles, selections } = node;
 
         // Add all the top-level profiles to the list
         if (profiles) {
@@ -78,13 +71,10 @@ class SelectionsView extends Component {
       const allProfiles = getAllProfiles(this.props.selection);
 
        // Build the list of models
-      const modelsList = selections
+      const modelsList = subselections
         .filter(x => x.type === 'model')
         .map(model => {
-          const selections = getSelections(model)
-            .map(selection => selection.name)
-            .join(', ')
-
+          const selections = model.selections.map(selection => selection.name).join(', ')
           return createTableRow([`${model.number}x ${model.name}`, selections]);
         });
 
@@ -105,11 +95,11 @@ class SelectionsView extends Component {
       });
     }
 
-    // // Generate JSX from keywords
+    // Generate JSX from keywords
     const keywordsTitle = 'Keywords';
-    jsxSectionsMap[keywordsTitle] = createTable(createTableHeader([keywordsTitle]), createTableRow([categoriesListString]));
+    jsxSectionsMap[keywordsTitle] = createTable(createTableHeader([keywordsTitle]), [createTableRow([categoriesListString])]);
 
-    // // Order all sections to be rendered in the right order, based on config
+    // rder all sections to be rendered in the right order, based on config
     const sectionsJSX = [];
 
     _.sortBy(Object.keys(jsxSectionsMap), key => {
@@ -134,4 +124,4 @@ class SelectionsView extends Component {
   }
 }
 
-export default SelectionsView;
+export default SelectionView;

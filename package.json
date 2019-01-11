@@ -6,6 +6,7 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "fast-xml-parser": "^3.12.11",
+    "flow-bin": "^0.89.0",
     "he": "^1.2.0",
     "lodash": "^4.17.11",
     "multer": "^1.4.1",
@@ -17,13 +18,15 @@
     "yauzl": "^2.10.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "jest --coverage",
-    "eject": "react-scripts eject",
+    "start": "./node_modules/.bin/react-scripts start",
+    "build": "./node_modules/.bin/react-scripts build",
+    "test": "./node_modules/.bin/jest --coverage",
+    "eject": "./node_modules/.bin/react-scripts eject",
     "server": "node --experimental-modules server/index.mjs",
-    "server-watch": "nodemon --experimental-modules server/index.mjs",
-    "frontend-debug": "react-scripts start"
+    "server-watch": "./node_modules/.bin/nodemon --experimental-modules server/index.mjs",
+    "frontend-debug": "./node_modules/.bin/react-scripts start",
+    "flow": "flow",
+    "flow:deps": "./node_modules/.bin/flow-typed install"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
@@ -39,6 +42,10 @@
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
-    "jest": "^23.6.0"
+    "enzyme": "^3.8.0",
+    "enzyme-adapter-react-16": "^1.7.1",
+    "flow-typed": "^2.5.1",
+    "jest": "^23.6.0",
+    "react-addons-test-utils": "^15.6.2"
   }
 }

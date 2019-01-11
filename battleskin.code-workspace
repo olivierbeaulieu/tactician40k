@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"javascript.validate.enable": false,
+		"search.exclude": {
+			"**/flow-typed": true
+		}
+	}
+}

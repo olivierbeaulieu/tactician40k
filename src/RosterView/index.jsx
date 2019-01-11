@@ -1,10 +1,17 @@
+// @flow
 import React, { Component } from 'react';
-import { parseXmlToJson, arrayToObj, ensureArray } from '../AppHelpers';
+import { parseXmlToJson, jsonToFormattedRoster } from '../AppHelpers';
+import type { Roster } from '../Types';
 import SidebarView from './SidebarView';
 import ForcesView from './ForcesView';
 
-class RosterView extends Component {
-  constructor(props) {
+type Props = {};
+type State = {
+  roster: Roster
+}
+
+class RosterView extends Component<Props, State> {
+  constructor(props: Object) {
     super(props);
 
     // Attempt to read the roster data. If not possible, send the user back to the upload page
@@ -16,35 +23,27 @@ class RosterView extends Component {
       return;
     }
 
-    const { roster } = parseXmlToJson(storageData);
-
-    // Convert array to object for easier manipulation
-    const costs = arrayToObj(roster.costs.cost, 'name');
-
+    const json = parseXmlToJson(storageData);
+    const roster: Roster = jsonToFormattedRoster(json);
+    console.log('Roster:',roster);
     this.state = {
-      rosterId: roster.id,
-      rosterName: roster.name,
-      powerLevel: costs.PL.value,
-      pointsValue: costs.pts.value,
-      // costLimits,
-      forces: ensureArray(roster.forces.force),
+      roster: roster
     };
   }
 
   render() {
-    // Set page title
-    document.querySelector('title').innerHTML = this.state.rosterName;
+    // Set page title to the roster name
+    // todo Find a better way to fix this type issue than any. Flow has issues with document.querySelector
+    (document.querySelector('title'): any).innerHTML = this.state.roster.name;
 
     return (
-      <div className="roster" key={'roster-' + this.state.rosterId}>
+      <div className="roster" key={'roster-' + this.state.roster.id}>
         <SidebarView
-          powerLevel={this.state.powerLevel}
-          pointsValue={this.state.pointsValue}
-          rosterName={this.state.rosterName}
-          forces={this.state.forces} />
+          rosterName={this.state.roster.name}
+          costs={this.state.roster.costs}
+          forces={this.state.roster.forces} />
         <div className="roster--body">
-          {/*<h1>{this.state.rosterName} (Warhammer 40,000 8th Edition) [{this.state.powerLevel} PL, {this.state.pointsValue}pts]</h1>*/}
-          <ForcesView forces={this.state.forces} />
+          <ForcesView forces={this.state.roster.forces} />
         </div>
       </div>
     );

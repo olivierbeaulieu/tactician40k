@@ -1,23 +1,29 @@
+// @flow
 import React, { Component } from 'react';
-import { sortByPrimaryCategory, ensureArray } from '../AppHelpers';
-import SelectionsView from './SelectionsView';
+import type { Node } from 'react';
+import SelectionView from './SelectionView';
+import type { Force } from '../Types';
 
-class Forces extends Component {
-  render() {
-    const sortedForces = sortByPrimaryCategory(this.props.forces);
+type ForcesProps = {
+  forces: Array<Force>
+};
 
+class ForcesView extends Component<ForcesProps> {
+  render(): Node {
     return (
-      sortedForces.map(force => <Force force={force} />)
+      this.props.forces.map(force => <ForceView force={force} />)
     );
   }
 }
 
-class Force extends Component {
+type ForceProps = {
+  force: Force
+}
+
+class ForceView extends Component<ForceProps> {
   render() {
     const { force } = this.props;
-    const selections = ensureArray(force.selections.selection);
-    const sortedSelections = sortByPrimaryCategory(selections);
-    const selectionsJSX = sortedSelections.map(selection => <SelectionsView selection={selection} />);
+    const selectionsJSX = force.selections.map(selection => <SelectionView selection={selection} />);
     
     return (
       <div>
@@ -31,4 +37,4 @@ class Force extends Component {
   }
 }
 
-export default Forces;
+export default ForcesView;

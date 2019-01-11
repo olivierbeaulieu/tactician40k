@@ -1,15 +1,19 @@
+// @flow
 import React, { Component } from 'react';
-import { sortByPrimaryCategory, ensureArray } from '../AppHelpers';
+import type { Costs, Force } from '../Types';
 
-class SidebarView extends Component {
+type Props = {
+  forces: Force[],
+  costs: Costs,
+  rosterName: string
+};
+
+class SidebarView extends Component<Props> {
   render() {
     const menuItems = [];
 
     this.props.forces.forEach(force => {
-      const selections = ensureArray(force.selections.selection);
-      const sortedSelections = sortByPrimaryCategory(selections);
-
-      sortedSelections.forEach(selection => {
+      force.selections.forEach(selection => {
         menuItems.push(<li key={selection.id}>
           <a href={'#datacard-' + selection.id}>{selection.name}</a>
         </li>);
@@ -19,7 +23,7 @@ class SidebarView extends Component {
     return (
       <div className="roster--sidebar">
         <div className="sidebar--title">{this.props.rosterName}</div>
-        <div className="sidebar--subtitle">{this.props.pointsValue} points - {this.props.powerLevel} PL</div>
+        <div className="sidebar--subtitle">{this.props.costs.points} points - {this.props.costs.powerLevel} PL</div>
         <ul className="sidebar--menu">{menuItems}</ul>
       </div>
     );

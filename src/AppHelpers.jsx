@@ -1,52 +1,210 @@
+// @flow
 import React from 'react';
 import _ from 'lodash';
 import parser from 'fast-xml-parser';
 import he from 'he';
+import type { Element } from 'react';
+import type { RosterfileJson, Roster, Category, Profile, Selection } from './Types';
 
-export function parseXmlToJson(xmlData) {
-    return parser.parse(xmlData, {
-        attributeNamePrefix : "",
-        // attrNodeName: "attributes", //default is 'false'
-        // textNodeName : "#text",
-        ignoreAttributes : false,
-        ignoreNameSpace : true,
-        allowBooleanAttributes : true,
-        parseNodeValue : true,
-        parseAttributeValue : true,
-        trimValues: true,
-        // cdataTagName: "__cdata", //default is 'false'
-        // cdataPositionChar: "\\c",
-        // localeRange: "", //To support non english character in tag/attribute values.
-        arrayMode: true,
-        parseTrueNumberOnly: true,
-        attrValueProcessor: a => he.decode(a, {isAttributeValue: true}),//default is a=>a
-        tagValueProcessor : a => he.decode(a) //default is a=>a
-    });
+/**
+ * Parses a stringified xml file into a JS object.
+ * 
+ * todo add some stricter return value than Object
+ * @param {string} xmlData A stringified xml, extracted from a .rosz file
+ */
+export function parseXmlToJson(xmlData: string): Object {
+  return parser.parse(xmlData, {
+    attributeNamePrefix: '',
+    // attrNodeName: "attributes", //default is 'false'
+    // textNodeName : "#text",
+    ignoreAttributes: false,
+    ignoreNameSpace: true,
+    allowBooleanAttributes: true,
+    parseNodeValue: true,
+    parseAttributeValue: true,
+    trimValues: true,
+    // cdataTagName: "__cdata", //default is 'false'
+    // cdataPositionChar: "\\c",
+    // localeRange: "", //To support non english character in tag/attribute values.
+    arrayMode: true,
+    parseTrueNumberOnly: true,
+    attrValueProcessor: a => he.decode(a, { isAttributeValue: true }),//default is a=>a
+    tagValueProcessor: a => he.decode(a) //default is a=>a
+  });
 }
 
-export function arrayToObj(array, keyName) {
+export function jsonToFormattedRoster(json: RosterfileJson): Roster {
+  const jsonRosterData = json.roster;
+
+  // Convert array to object for easier manipulation
+  const costs = arrayToObj(jsonRosterData.costs.cost, 'name');
+
+  // todo refactor this mess
+  const forces = ensureArray(jsonRosterData.forces.force).map(force => {
+    return {
+      id: force.id,
+      name: force.name,
+      catalogueName: force.catalogueName,
+      catalogueRevision: force.catalogueRevision,
+
+      categories: ensureArray(force.categories.category).map(category => {
+        return {
+          primary: category.primary,
+          name: category.name
+        }
+      }),
+
+      selections: sortByPrimaryCategory(ensureArray(force.selections.selection).map(selection => {
+        const costs = arrayToObj(selection.costs.cost, 'name');
+
+        return {
+          number: selection.number,
+          type: selection.type,
+          entryId: selection.entryId,
+          id: selection.id,
+          name: selection.name,
+          costs: {
+            powerLevel: costs.PL.value,
+            points: costs.pts.value
+          },
+          categories: ensureArray(selection.categories.category).map(category => {
+            return {
+              primary: category.primary,
+              name: category.name
+            }
+          }),
+          profiles: ensureArray(selection.profiles.profile).map(profile => {
+            return {
+              type: profile.profileTypeName,
+              name: profile.name,
+              id: profile.id,
+              characteristics: ensureArray(profile.characteristics.characteristic).map(characteristic => {
+                return {
+                  name: characteristic.name,
+                  value: characteristic.value
+                };
+              })
+            };
+          }),
+          selections: ensureArray(selection.selections.selection).map(selection => {
+            const costs = arrayToObj(selection.costs.cost, 'name');
+
+            return {
+              number: selection.number,
+              type: selection.type,
+              entryId: selection.entryId,
+              id: selection.id,
+              name: selection.name,
+              costs: {
+                powerLevel: costs.PL.value,
+                points: costs.pts.value
+              },
+              categories: ensureArray(selection.categories.category).map(category => {
+                return {
+                  primary: category.primary,
+                  name: category.name
+                }
+              }),
+              profiles: ensureArray(selection.profiles.profile).map(profile => {
+                return {
+                  type: profile.profileTypeName,
+                  name: profile.name,
+                  id: profile.id,
+                  characteristics: ensureArray(profile.characteristics.characteristic).map(characteristic => {
+                    return {
+                      name: characteristic.name,
+                      value: characteristic.value
+                    };
+                  })
+                };
+              }),
+              rules: ensureArray(selection.rules.rule).map(rule => {
+                return {
+                  name: rule.name,
+                  description: rule.description
+                };
+              }),
+              selections: ensureArray(selection.selections.selection).map(selection => {
+                const costs = arrayToObj(selection.costs.cost, 'name');
+
+                return {
+                  number: selection.number,
+                  type: selection.type,
+                  entryId: selection.entryId,
+                  id: selection.id,
+                  name: selection.name,
+                  costs: {
+                    powerLevel: costs.PL.value,
+                    points: costs.pts.value
+                  },
+                  selections: [],
+                  categories: [],
+                  profiles: ensureArray(selection.profiles.profile).map(profile => {
+                    return {
+                      type: profile.profileTypeName,
+                      name: profile.name,
+                      id: profile.id,
+                      characteristics: ensureArray(profile.characteristics.characteristic).map(characteristic => {
+                        return {
+                          name: characteristic.name,
+                          value: characteristic.value
+                        };
+                      })
+                    };
+                  })
+                }
+              })
+            }
+          }),
+          rules: ensureArray(selection.rules.rule).map(rule => {
+            return {
+              name: rule.name,
+              description: rule.description
+            };
+          })
+        }
+      }))
+    };
+  });
+
+  const roster: Roster = {
+    id: jsonRosterData.id,
+    entryId: jsonRosterData.entryId,
+    name: jsonRosterData.name,
+    forces: forces,
+    costs: {
+      powerLevel: costs.PL.value,
+      points: costs.pts.value
+    }
+  };
+
+  return roster;
+}
+
+export function arrayToObj<T: {}>(input: Array<T>, keyName: string): Object {
   if (typeof keyName !== 'string' || keyName.length === 0) {
     throw new Error('Argument keyName must be a non-empty string')
   }
 
-  return array.reduce((obj, value) => { obj[value[keyName.trim()]] = value; return obj }, {});
+  return input.reduce((obj: {}, value: T) => { obj[value[keyName.trim()]] = value; return obj }, {});
 }
 
-export function createTableRow(arrayRowValues) {
+export function createTableRow(arrayRowValues: Array<string | number>): Element<'tr'> {
   const rows = [];
 
-  for (const i in arrayRowValues) {
+  for (let i = 0; i < arrayRowValues.length; i++) {
     rows.push(<td>{arrayRowValues[i]}</td>);
   }
+
   return (<tr>
     {rows}
   </tr>);
 }
 
-export function createTableHeader(arrayRowValues) {
+export function createTableHeader(arrayRowValues: Array<string | number>): Element<'tr'> {
   const rows = [];
 
-  for (const i in arrayRowValues) {
+  for (let i = 0; i < arrayRowValues.length; i++) {
     rows.push(<th>{arrayRowValues[i]}</th>);
   }
   return (<tr>
@@ -55,7 +213,7 @@ export function createTableHeader(arrayRowValues) {
 }
 
 
-export function createTable(headerJSX, rowsJSX) {
+export function createTable(headerJSX: Element<'tr'>, rowsJSX: Array<Element<'tr'>>): Element<'table'> {
   return (<table>
     <thead>
       {headerJSX}
@@ -66,16 +224,19 @@ export function createTable(headerJSX, rowsJSX) {
   </table>);
 }
 
-
-export function getPrimaryCategory(element) {
-  const categories = ensureArray(element.categories.category);
-  return categories.find(category => category.primary === true);
+/**
+ * Return the Category object that has primary: true.
+ * todo Figure out how to handle the case where no primary category exists
+ * @param {*} element 
+ */
+export function getPrimaryCategory(element: { categories: Array<Category> }): ?Category {
+  return element.categories.find(category => category.primary === true);
 }
 
 
 const unitTypeOrder = ['hq', 'troops', 'fast attack', 'flyer', 'dedicated transport'];
 
-export function sortByPrimaryCategory(elements) {
+export function sortByPrimaryCategory(elements: Selection[]): Selection[] {
   return _.sortBy(elements, element => {
     const primaryCategory = getPrimaryCategory(element);
 
@@ -97,10 +258,10 @@ export function sortByPrimaryCategory(elements) {
  * todo The last else statement should be only for objects
  * @param {Any} value 
  */
-export function ensureArray(value) {
+export function ensureArray(value: any): Array<any> {
   if (value instanceof Array) {
     return value
-  } else if (typeof value === 'string') {
+  } else if (typeof value === 'string' || typeof value === 'undefined') {
     return [];
   } else {
     return [value];
@@ -108,13 +269,13 @@ export function ensureArray(value) {
 }
 
 
-export function buildTableFromProfilesList(profileTypeName, profilesList) {
+export function buildTableFromProfilesList(profileTypeName: string, profilesList: Profile[]): Element<'table'> {
   // Gather the table header values
-  const headers = [profileTypeName]; 
+  const headers = [profileTypeName];
 
   // Build the rows
   const rowsJSX = profilesList.reduce((arr, profile, index) => {// Add profile details for this profile
-    const characteristics = getCharacteristics(profile);
+    const { characteristics } = profile;
 
     if (characteristics) {
       const characteristicsArr = [profile.name];
@@ -136,41 +297,3 @@ export function buildTableFromProfilesList(profileTypeName, profilesList) {
 
   return createTable(headerJSX, rowsJSX);
 }
-
-
-export function getRules(element) {
-  if (element.rules && element.rules.rule) {
-    return ensureArray(element.rules.rule);
-  }
-}
-
-export function getCategories(element) {
-  if (element.categories && element.categories.category) {
-    return ensureArray(element.categories.category);
-  }
-}
-
-export function getSelections(element) {
-  if (element.selections && element.selections.selection) {
-    return ensureArray(element.selections.selection);
-  }
-}
-
-export function getCosts(element) {
-  if (element.costs && element.costs.cost) {
-    return ensureArray(element.costs.cost);
-  }
-}
-
-export function getProfiles(element) {
-  if (element.profiles && element.profiles.profile) {
-    return ensureArray(element.profiles.profile);
-  }
-}
-
-export function getCharacteristics(element) {
-  if (element.characteristics && element.characteristics.characteristic) {
-    return ensureArray(element.characteristics.characteristic);
-  }
-}
-
