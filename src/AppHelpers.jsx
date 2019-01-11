@@ -139,6 +139,7 @@ export function jsonToFormattedRoster(json: RosterfileJson): Roster {
                   },
                   selections: [],
                   categories: [],
+                  rules: [],
                   profiles: ensureArray(selection.profiles.profile).map(profile => {
                     return {
                       type: profile.profileTypeName,

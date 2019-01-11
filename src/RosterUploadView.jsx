@@ -1,8 +1,10 @@
+// @flow
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
+import type { Element } from 'react';
 
-class RosterUploadView extends Component {
-   async onDrop(acceptedFiles, rejectedFiles) {
+class RosterUploadView extends Component<{}> {
+   async onDrop(acceptedFiles: [], rejectedFiles: []) {
      // Do something with files
      console.log(acceptedFiles, rejectedFiles)
 
@@ -34,7 +36,7 @@ class RosterUploadView extends Component {
      window.location.href = '/roster';
    }
 
-   render() {
+   render(): Element<'div'> {
     return (
       <div className="roster-upload">
         <h2>Upload a .rosz file to view your roster</h2>

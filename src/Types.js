@@ -48,7 +48,7 @@ export type Selection = {
   categories: Category[],
   selections: Selection[],
   profiles: Profile[],
-  rules?: Rule[]
+  rules: Rule[]
 };
 
 export type Force = {

@@ -1,1 +1,2 @@
-export const TABLES_ORDER = ['unit', 'weapon', 'abilities', 'psyker', 'psychic power', 'rules'];
+// @flow
+export const TABLES_ORDER = ['unit', 'weapon', 'abilities', 'psyker', 'psychic power', 'models', 'rules', 'keywords'];
