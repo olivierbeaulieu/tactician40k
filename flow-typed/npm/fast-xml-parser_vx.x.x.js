@@ -1,3 +1,4 @@
+// @flow
 // flow-typed signature: d760953a95f566a637479963a6448058
 // flow-typed version: <<STUB>>/fast-xml-parser_v^3.12.11/flow_v0.89.0
 
@@ -14,7 +15,26 @@
  */
 
 declare module 'fast-xml-parser' {
-  declare module.exports: any;
+  declare export default class Parser {
+    static parse(xmlData: string, options: {
+      attributeNamePrefix?: string,
+      ignoreAttributes?: boolean,
+      ignoreNameSpace?: boolean,
+      allowBooleanAttributes?: boolean,
+      parseNodeValue?: boolean,
+      parseAttributeValue?: boolean,
+      trimValues?: boolean,
+      arrayMode?: boolean,
+      parseTrueNumberOnly?: boolean,
+      attrValueProcessor?: function,
+      tagValueProcessor?: function,
+      attrNodeName?: string | boolean,
+      textNodeName?: string | boolean,
+      cdataTagName?: string | boolean,
+      cdataPositionChar?: string | boolean,
+      localeRange?: string | boolean,
+    }): Object;
+  }
 }
 
 /**

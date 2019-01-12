@@ -1,5 +1,7 @@
-import { ensureArray, arrayToObj, createTableRow } from './AppHelpers';
+import { parseXmlToJson, ensureArray, arrayToObj, createTableRow } from './AppHelpers';
 import { mount } from 'enzyme';
+import { readFileSync } from 'fs';
+import path from 'path';
 
 describe('#ensureArray', () => {
   test('if an array is passed, it should return that same array', () => {
@@ -79,4 +81,16 @@ describe('#createTableRow', () => {
     const result = mount(createTableRow(['Hello', 'world', '!']));
     expect(result.html()).toEqual('<tr><td>Hello</td><td>world</td><td>!</td></tr>');
   });
+});
+
+describe('#parseXmlToJson', () => {
+  test('it should return a properly formatted JSON object', () => {
+    const filePath = `${__dirname}/fixtures/roster-space-wolves.xml`;
+    const rosterSpaceWolvesFixture = readFileSync(filePath, 'utf8');
+    const result = parseXmlToJson(rosterSpaceWolvesFixture);
+
+    expect(result).toBeInstanceOf(Object);
+    expect(result.roster).toBeInstanceOf(Object);
+    expect(Object.keys(result.roster)).toEqual(['battleScribeVersion', 'gameSystemId', 'gameSystemName', 'gameSystemRevision', 'id', 'name', 'costs', 'costLimits', 'forces']);
+  })
 });

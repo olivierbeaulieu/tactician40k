@@ -3,8 +3,9 @@ import React from 'react';
 import _ from 'lodash';
 import parser from 'fast-xml-parser';
 import he from 'he';
+import { UNIT_TYPE_ORDER } from './config';
 import type { Element } from 'react';
-import type { RosterfileJson, Roster, Category, Profile, Selection, Characteristic, Rule } from './Types';
+import type { RosterfileJson, Roster, Category, Profile, Force, Selection, Characteristic, Rule } from './Types';
 
 /**
  * Parses a stringified xml file into a JS object.
@@ -37,9 +38,20 @@ export function jsonToFormattedRoster(json: RosterfileJson): Roster {
   const jsonRosterData = json.roster;
 
   // Convert array to object for easier manipulation
-  const costs = arrayToObj(jsonRosterData.costs.cost, 'name');
+  const costs: {
+    PL: { value: number },
+    pts: { value: number }
+  } = arrayToObj(jsonRosterData.costs.cost, 'name');
 
-  const forces = ensureArray(jsonRosterData.forces.force).map(force => {
+  type RawForceData = Categorized & Selectioned & {
+    id: string,
+    entryId: string,
+    name: string,
+    catalogueName: string,
+    catalogueRevision: number
+  };
+
+  const forces: Force[] = ensureArray(jsonRosterData.forces.force).map((force: RawForceData) => {
     return {
       id: force.id,
       name: force.name,
@@ -64,12 +76,22 @@ export function jsonToFormattedRoster(json: RosterfileJson): Roster {
   return roster;
 }
 
-export function arrayToObj<T: {}>(input: Array<T>, keyName: string): Object {
+// todo fix the typing issues here.
+export function arrayToObj(input: Array<{}>, keyName: string): {} {
   if (typeof keyName !== 'string' || keyName.length === 0) {
     throw new Error('Argument keyName must be a non-empty string')
   }
 
-  return input.reduce((obj: {}, value: T) => { obj[value[keyName.trim()]] = value; return obj }, {});
+  return input.reduce((obj, value) => {
+    const trimmedKeyName: string = keyName.trim();
+    const keyNamedValue: mixed = value[trimmedKeyName];
+
+    if (typeof keyNamedValue === 'string') {
+      obj[keyNamedValue] = value;
+    }
+
+    return obj;
+  }, {});
 }
 
 export function createTableRow(arrayRowValues: Array<string | number>): Element<'tr'> {
@@ -110,21 +132,21 @@ export function createTable(headerJSX: Element<'tr'>, rowsJSX: Array<Element<'tr
 /**
  * Return the Category object that has primary: true.
  * todo Figure out how to handle the case where no primary category exists
- * @param {*} element 
  */
 export function getPrimaryCategory(element: { categories: Array<Category> }): ?Category {
   return element.categories.find(category => category.primary === true);
 }
 
 
-const unitTypeOrder = ['hq', 'troops', 'fast attack', 'flyer', 'dedicated transport'];
-
+/**
+ * Sorts an array or Selections by their primary category
+ */
 export function sortByPrimaryCategory(elements: Selection[]): Selection[] {
   return _.sortBy(elements, element => {
     const primaryCategory = getPrimaryCategory(element);
 
     if (primaryCategory) {
-      const index = unitTypeOrder.indexOf(primaryCategory.name.toLowerCase());
+      const index = UNIT_TYPE_ORDER.indexOf(primaryCategory.name.toLowerCase());
       return index === -1 ? 1000 : index;
     } else {
       return 1000;
