@@ -103,6 +103,17 @@ tbody td {
   margin-top: 18px;
 }
 
+.sidebar--back-button {
+  color: #a6adb5;
+  margin: 20px 0;
+  display: inline-block;
+}
+
+.sidebar--back-button .fas {
+  /* color: white; */
+  margin-right: 4px;
+}
+
 .sidebar--menu a {
   padding: 12px 0;
   display: inline-block;
@@ -147,4 +158,12 @@ tbody td {
   padding: 30px;
   height: 350px;
   font-weight: bold;
+}
+
+.logo {
+  font-size: 24px;
+}
+
+.logo .fas {
+  margin-right: 10px;
 }

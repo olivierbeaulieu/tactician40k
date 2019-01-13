@@ -22,6 +22,13 @@ class SidebarView extends Component<Props> {
     
     return (
       <div className="roster--sidebar">
+        <div className="logo">
+          <i className="fas fa-dice-d6"></i>
+          Tactician
+        </div>
+
+        <a className="sidebar--back-button" href="/"><i className="fas fa-chevron-left"></i> Back</a>
+
         <div className="sidebar--title">{this.props.rosterName}</div>
         <div className="sidebar--subtitle">{this.props.costs.points} points - {this.props.costs.powerLevel} PL</div>
         <ul className="sidebar--menu">{menuItems}</ul>
