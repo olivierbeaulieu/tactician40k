@@ -36,6 +36,7 @@ export function parseXmlToJson(xmlData: string): Object {
 
 export function jsonToFormattedRoster(json: RosterfileJson): Roster {
   const jsonRosterData = json.roster;
+  console.log(json)
 
   // Convert array to object for easier manipulation
   const costs: {

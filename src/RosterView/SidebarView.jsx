@@ -13,6 +13,10 @@ class SidebarView extends Component<Props> {
     const menuItems = [];
 
     this.props.forces.forEach(force => {
+      menuItems.push(<li className="sidebar--menu-section" key={force.id}>
+        {force.name} ({force.catalogueName})
+      </li>);
+
       force.selections.forEach(selection => {
         menuItems.push(<li key={selection.id}>
           <a href={'#datacard-' + selection.id}>{selection.name}</a>

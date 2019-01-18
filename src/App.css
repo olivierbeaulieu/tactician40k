@@ -103,6 +103,15 @@ tbody td {
   margin-top: 18px;
 }
 
+.sidebar--menu-section {
+  font-size: 14px;
+  color: #a6adb5;
+  padding-bottom: 10px;
+  font-weight: bold;
+  margin-top: 30px;
+  border: none !important;
+}
+
 .sidebar--back-button {
   color: #a6adb5;
   margin: 20px 0;

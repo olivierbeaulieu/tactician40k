@@ -15,15 +15,17 @@
     "react-dropzone": "^8.0.3",
     "react-router-dom": "^4.3.1",
     "react-scripts": "^2.1.3",
+    "serve": "^10.1.1",
     "yauzl": "^2.10.0"
   },
   "scripts": {
-    "start": "./node_modules/.bin/react-scripts start",
+    "start": "npm run server-debug & npm run frontend-debug",
+    "start:prod": "npm run build && npm run server && ./node_modules/.bin/serve -s build",
     "build": "./node_modules/.bin/react-scripts build",
     "test": "./node_modules/.bin/jest --coverage",
     "eject": "./node_modules/.bin/react-scripts eject",
     "server": "node --experimental-modules server/index.mjs",
-    "server-watch": "./node_modules/.bin/nodemon --experimental-modules server/index.mjs",
+    "server-debug": "./node_modules/.bin/nodemon -L --experimental-modules server/index.mjs",
     "frontend-debug": "./node_modules/.bin/react-scripts start",
     "flow": "flow",
     "flow:deps": "./node_modules/.bin/flow-typed install"
