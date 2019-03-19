@@ -28,7 +28,9 @@
     "server-debug": "./node_modules/.bin/nodemon -L --experimental-modules server/index.mjs",
     "frontend-debug": "./node_modules/.bin/react-scripts start",
     "flow": "flow",
-    "flow:deps": "./node_modules/.bin/flow-typed install"
+    "flow:deps": "./node_modules/.bin/flow-typed install",
+    "start:lambda": "netlify-lambda serve src/lambda",
+    "build:lambda": "netlify-lambda build src/lambda"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
