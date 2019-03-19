@@ -24,7 +24,7 @@ class RosterUploadView extends Component<{}> {
       formData.append(file.name, file)
      }
 
-     const xmlData = await fetch('/rosz_to_xml', {
+     const xmlData = await fetch('/api/rosz_to_xml', {
       method: 'PUT',
       body: formData
      }).then(response => response.text());
@@ -49,8 +49,8 @@ class RosterUploadView extends Component<{}> {
                   <input {...getInputProps()} />
                   {
                     isDragActive ?
-                      <p>Drop files here...</p> :
-                      <p>Try dropping some files here, or click to select files to upload.</p>
+                      <p>Drop .rosz file here...</p> :
+                      <p>Drop .rosz file here, or click to select files to upload.</p>
                   }
                 </div>
               )

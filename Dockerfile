@@ -4,12 +4,12 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm install --loglevel verbose
+RUN npm install -g serve
 
-EXPOSE 3000 3001 5000
+EXPOSE 3001 5000
 
 COPY . .
 
-RUN npm run build
-RUN npm install -g serve
+RUN npm run build:frontend
 
-CMD npm run server & serve -s build
+CMD npm run start:server & serve -s build

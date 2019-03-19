@@ -9,6 +9,7 @@
     "flow-bin": "^0.89.0",
     "he": "^1.2.0",
     "lodash": "^4.17.11",
+    "morgan": "^1.9.1",
     "multer": "^1.4.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
@@ -19,18 +20,15 @@
     "yauzl": "^2.10.0"
   },
   "scripts": {
+    "build:frontend": "react-scripts build",
+    "start:server": "node --experimental-modules server/index.mjs",
     "start": "npm run server-debug & npm run frontend-debug",
     "start:prod": "npm run server & serve -s build",
-    "build": "react-scripts build",
     "test": "jest --coverage",
     "eject": "react-scripts eject",
-    "server": "node --experimental-modules server/index.mjs",
     "server-debug": "nodemon -L --experimental-modules server/index.mjs",
     "frontend-debug": "react-scripts start",
-    "flow": "flow",
-    "flow:deps": "flow-typed install",
-    "start:lambda": "netlify-lambda serve src/lambda",
-    "build:lambda": "netlify-lambda build src/lambda"
+    "flow:deps": "flow-typed install"
   },
   "eslintConfig": {
     "extends": "react-app"

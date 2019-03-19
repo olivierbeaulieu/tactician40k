@@ -2,14 +2,20 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import multer from 'multer';
 import yauzl from 'yauzl';
+import morgan from 'morgan'
 
 const app = express();
 const port = 3001;
 const multerUpload = multer();
 
 app.use(bodyParser.json());
+app.use(morgan('combined'));
 
-app.put('/rosz_to_xml', multerUpload.any(), async (req, res) => {
+app.get('/api/healthcheck', (req, res) => {
+    res.send('Hello world');
+});
+
+app.put('/api/rosz_to_xml', multerUpload.any(), async (req, res) => {
     // Validate mime-type application/octet-stream
     // Validate encoding 7bit?
     // Set maximum of files to be treated, avoid someone uploading 10,000 1GB files
