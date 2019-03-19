@@ -5,14 +5,14 @@ export type RosterfileJson = {
     name: string,
     entryId: string,
     costs: {
-      cost: Array<{
+      cost: {
         costTypeId: string,
-        name: string,
+        name: 'PL' | 'pts',
         value: number
-      }>
+      }[]
     },
     forces: {
-      force: Array<{}>
+      force: {}[]
     }
   }
 };

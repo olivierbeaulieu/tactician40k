@@ -1,5 +1,5 @@
 {
-  "name": "battlescribe2",
+  "name": "tactician40k",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -20,19 +20,18 @@
   },
   "scripts": {
     "start": "npm run server-debug & npm run frontend-debug",
-    "start:prod": "npm run build && npm run server && ./node_modules/.bin/serve -s build",
-    "build": "./node_modules/.bin/react-scripts build",
-    "test": "./node_modules/.bin/jest --coverage",
-    "eject": "./node_modules/.bin/react-scripts eject",
+    "start:prod": "npm run server & serve -s build",
+    "build": "react-scripts build",
+    "test": "jest --coverage",
+    "eject": "react-scripts eject",
     "server": "node --experimental-modules server/index.mjs",
-    "server-debug": "./node_modules/.bin/nodemon -L --experimental-modules server/index.mjs",
-    "frontend-debug": "./node_modules/.bin/react-scripts start",
+    "server-debug": "nodemon -L --experimental-modules server/index.mjs",
+    "frontend-debug": "react-scripts start",
     "flow": "flow",
-    "flow:deps": "./node_modules/.bin/flow-typed install",
+    "flow:deps": "flow-typed install",
     "start:lambda": "netlify-lambda serve src/lambda",
     "build:lambda": "netlify-lambda build src/lambda"
   },
-  "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -49,7 +48,6 @@
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.11.2",
     "flow-typed": "^2.5.1",
-    "jest": "^24.5.0",
     "react-addons-test-utils": "^15.6.2"
   }
 }
