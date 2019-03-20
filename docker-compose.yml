@@ -1,22 +1,10 @@
 version: '3'
 
 services:
-  # client:
-  #   build: .
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
-  #   ports:c
-  #     - 3000:3000
-  #     - 9229:9229
-  #   command: npm start
-  
   tactician:
+    image: registry.heroku.com/tactician40k/web
     build:
       context: .
-    ports:
-      - 3001:3001
-      - 5000:5000
     volumes:
       - npm-cache:/root/.npm
   
