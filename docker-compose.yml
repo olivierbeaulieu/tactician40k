@@ -2,7 +2,7 @@ version: '3'
 
 services:
   tactician:
-    image: registry.heroku.com/tactician40k/web
+    image: registry.gitlab.com/olivierbeaulieu/battleskin
     build:
       context: .
     volumes:

@@ -1,0 +1,18 @@
+image:
+  # update tag to whatever version you want to use.
+  name: docker/compose:1.23.2
+  entrypoint: ["/bin/sh", "-c"]
+
+services:
+  - docker:dind
+
+before_script:
+  - docker version
+  - docker-compose version
+
+build:
+  stage: build
+  script:
+    - docker-compose down
+    - docker-compose build
+    - docker-compose push
