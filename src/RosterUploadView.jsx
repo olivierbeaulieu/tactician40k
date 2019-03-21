@@ -21,11 +21,11 @@ class RosterUploadView extends Component<{}> {
      // Append all files to a FormData object
      const formData = new FormData();
      for (const file of acceptedFiles) {
-      formData.append(file.name, file)
+       formData.append('rosz', file, file.name)
      }
 
-     const xmlData = await fetch('/api/rosz_to_xml', {
-      method: 'PUT',
+     const xmlData = await fetch('/rosz_to_xml', {
+      method: 'POST',
       body: formData
      }).then(response => response.text());
 
