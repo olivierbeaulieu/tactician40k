@@ -16,7 +16,7 @@
     "serve": "^10.1.2"
   },
   "scripts": {
-    "build": "react-scripts build",
+    "build": "react-scripts build && cp ./_redirects build/",
     "start": "react-scripts start",
     "start:prod": "serve -s build",
     "test": "jest --coverage",
