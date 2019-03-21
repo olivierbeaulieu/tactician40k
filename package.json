@@ -3,31 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "express": "^4.16.4",
     "fast-xml-parser": "^3.12.14",
     "flow-bin": "^0.89.0",
     "he": "^1.2.0",
+    "jszip": "^3.2.0",
     "lodash": "^4.17.11",
-    "morgan": "^1.9.1",
-    "multer": "^1.4.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-dropzone": "^8.2.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "^2.1.8",
-    "serve": "^10.1.2",
-    "yauzl": "^2.10.0"
+    "serve": "^10.1.2"
   },
+  "proxy": "http://localhost:5000",
   "scripts": {
-    "build:frontend": "react-scripts build",
-    "start:server": "node --experimental-modules server/index.mjs",
-    "start": "npm run server-debug & npm run frontend-debug",
-    "start:prod": "npm run server & serve -s build",
+    "build": "react-scripts build",
+    "start": "react-scripts start",
+    "start:prod": "serve -s build",
     "test": "jest --coverage",
     "eject": "react-scripts eject",
-    "server-debug": "nodemon -L --experimental-modules server/index.mjs",
-    "frontend-debug": "react-scripts start",
     "flow:deps": "flow-typed install"
   },
   "eslintConfig": {
@@ -40,7 +34,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "babel-core": "^6.26.3",
+    "babel-core": "^7.0.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "enzyme": "^3.9.0",

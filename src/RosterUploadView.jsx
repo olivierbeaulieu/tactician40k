@@ -2,11 +2,13 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import type { Element } from 'react';
+import JSZip from 'jszip';
 
 class RosterUploadView extends Component<{}> {
    async onDrop(acceptedFiles: [], rejectedFiles: []) {
      // Do something with files
-     console.log(acceptedFiles, rejectedFiles)
+     console.log('Accepted files', acceptedFiles)
+     console.log('Rejected files', rejectedFiles)
 
      // perform validations
      // display error messages
@@ -22,16 +24,17 @@ class RosterUploadView extends Component<{}> {
      const formData = new FormData();
      for (const file of acceptedFiles) {
        formData.append('rosz', file, file.name)
+       const zip = new JSZip();
+       const content = await zip.loadAsync(file)
+
+       for (const filename of Object.keys(content.files)) {
+         const xmlData = await content.files[filename].async('string')
+
+         // For now, work with a single file memory
+         // @TODO Allow multiple files in storage
+         localStorage.setItem('roster-data', xmlData);
+       }
      }
-
-     const xmlData = await fetch('/rosz_to_xml', {
-      method: 'POST',
-      body: formData
-     }).then(response => response.text());
-
-     // For now, work with a single file memory
-     // @TODO Allow multiple files in storage
-     localStorage.setItem('roster-data', xmlData);
 
      window.location.href = '/roster';
    }
