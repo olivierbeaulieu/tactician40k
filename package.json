@@ -1,36 +1,29 @@
 {
-  "name": "battlescribe2",
+  "name": "tactician40k",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "express": "^4.16.4",
-    "fast-xml-parser": "^3.12.11",
+    "fast-xml-parser": "^3.12.14",
     "flow-bin": "^0.89.0",
     "he": "^1.2.0",
+    "jszip": "^3.2.0",
     "lodash": "^4.17.11",
-    "multer": "^1.4.1",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0",
-    "react-dropzone": "^8.0.3",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-dropzone": "^8.2.0",
+    "react-ga": "^2.5.7",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "^2.1.3",
-    "serve": "^10.1.1",
-    "yauzl": "^2.10.0"
+    "react-scripts": "^2.1.8",
+    "serve": "^10.1.2"
   },
   "scripts": {
-    "start": "npm run server-debug & npm run frontend-debug",
-    "start:prod": "npm run build && npm run server && ./node_modules/.bin/serve -s build",
-    "build": "./node_modules/.bin/react-scripts build",
-    "test": "./node_modules/.bin/jest --coverage",
-    "eject": "./node_modules/.bin/react-scripts eject",
-    "server": "node --experimental-modules server/index.mjs",
-    "server-debug": "./node_modules/.bin/nodemon -L --experimental-modules server/index.mjs",
-    "frontend-debug": "./node_modules/.bin/react-scripts start",
-    "flow": "flow",
-    "flow:deps": "./node_modules/.bin/flow-typed install"
+    "build": "react-scripts build && cp ./_redirects build/",
+    "start": "react-scripts start",
+    "start:prod": "serve -s build",
+    "test": "jest --coverage",
+    "eject": "react-scripts eject",
+    "flow:deps": "flow-typed install"
   },
-  "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -41,13 +34,12 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.7.1",
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.1",
+    "@babel/preset-react": "^7.0.0",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.11.2",
     "flow-typed": "^2.5.1",
-    "jest": "^23.6.0",
     "react-addons-test-utils": "^15.6.2"
   }
 }

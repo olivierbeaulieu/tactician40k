@@ -90,9 +90,15 @@ export function jsonToFormattedRoster(json: RosterfileJson): Roster {
 }
 
 // todo fix the typing issues here.
+<<<<<<< HEAD
 export function arrayToObj(input: Array<{}>, keyName: string): {} {
   if (typeof keyName !== "string" || keyName.length === 0) {
     throw new Error("Argument keyName must be a non-empty string");
+=======
+export function arrayToObj(input: Object[], keyName: string) {
+  if (typeof keyName !== 'string' || keyName.length === 0) {
+    throw new Error('Argument keyName must be a non-empty string')
+>>>>>>> b62cc70fe45da8dcf95a8db5b3aaf1da0fac3868
   }
 
   return input.reduce((obj, value) => {

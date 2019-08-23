@@ -1,7 +1,6 @@
 import { parseXmlToJson, ensureArray, arrayToObj, createTableRow } from './AppHelpers';
 import { mount } from 'enzyme';
 import { readFileSync } from 'fs';
-import path from 'path';
 
 describe('#ensureArray', () => {
   test('if an array is passed, it should return that same array', () => {
