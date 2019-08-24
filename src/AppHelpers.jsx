@@ -316,7 +316,7 @@ function getProfiles(element: Profiled): Profile[] {
 
   return ensureArray(element.profiles.profile).map(profile => {
     return {
-      type: profile.profileTypeName,
+      type: profile.profileTypeName || profile.typeName,
       name: profile.name,
       id: profile.id,
       characteristics: getCharacteristics(profile)
