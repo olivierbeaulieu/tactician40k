@@ -299,7 +299,7 @@ function getCharacteristics(element: Characterized): Characteristic[] {
     characteristic => {
       return {
         name: characteristic.name,
-        value: characteristic.value
+        value: characteristic.value || characteristic["#text"]
       };
     }
   );
