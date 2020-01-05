@@ -51,7 +51,7 @@ export function jsonToFormattedRoster(json: RosterfileJson): Roster {
   const costs: {
     PL: { value: number },
     pts: { value: number }
-  } = arrayToObj(jsonRosterData.costs && jsonRosterData.costs.cost, "name");
+  } = arrayToObj(jsonRosterData.costs ? jsonRosterData.costs.cost : [], "name");
 
   type RawForceData = Categorized &
     Selectioned & {
