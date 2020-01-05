@@ -44,14 +44,16 @@ export function parseXmlToJson(xmlData: string): Object {
 }
 
 export function jsonToFormattedRoster(json: RosterfileJson): Roster {
-  const jsonRosterData = json.roster;
+  // Array check for a weird bug where locally, roster is an object and in prod its an array with one entry. To be investigated,
+  // probably a problem related with the version of an NPM depepency. Remove this hack to reproduce the issue, with the wolfbang list.
+  const jsonRosterData = Array.isArray(json.roster) ? json.roster[0] : json.roster;
   console.log(json);
 
   // Convert array to object for easier manipulation
   const costs: {
     PL: { value: number },
     pts: { value: number }
-  } = arrayToObj(jsonRosterData.costs ? jsonRosterData.costs.cost : [], "name");
+  } = arrayToObj(jsonRosterData.costs.cost, "name");
 
   type RawForceData = Categorized &
     Selectioned & {
