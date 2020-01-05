@@ -7,13 +7,13 @@ import { UNIT_TYPE_ORDER } from "./config";
 import type { Element } from "react";
 import type {
   RosterfileJson,
-  Roster,
-  Category,
-  Profile,
-  Force,
-  Selection,
-  Characteristic,
-  Rule
+    Roster,
+    Category,
+    Profile,
+    Force,
+    Selection,
+    Characteristic,
+    Rule
 } from "./Types";
 
 /**
@@ -51,7 +51,7 @@ export function jsonToFormattedRoster(json: RosterfileJson): Roster {
   const costs: {
     PL: { value: number },
     pts: { value: number }
-  } = arrayToObj(jsonRosterData.costs.cost, "name");
+  } = arrayToObj(jsonRosterData.costs && jsonRosterData.costs.cost, "name");
 
   type RawForceData = Categorized &
     Selectioned & {
