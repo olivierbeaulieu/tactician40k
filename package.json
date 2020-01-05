@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "fast-xml-parser": "^3.12.14",
+    "fast-xml-parser": "3.12.14",
     "flow-bin": "^0.89.0",
     "he": "^1.2.0",
     "jszip": "^3.2.0",
